@@ -1,0 +1,301 @@
+request_id,patient,doctor_id,procedure_type,acceptable_room_type,requested_start,duration_min
+A1,Patient 1,D20,X-ray/Imaging,Imaging Room,12:00,14
+A2,Patient 2,D1,Extraction,General Operatory,11:15,23
+A3,Patient 3,D9,Root Canal,Endodontic Operatory,09:25,70
+A4,Patient 4,D14,Checkup/Cleaning,General Operatory,13:05,30
+A5,Patient 5,D17,Root Canal,Endodontic Operatory,10:20,76
+A6,Patient 6,D10,Root Canal,Endodontic Operatory,12:35,76
+A7,Patient 7,D5,Filling,General Operatory,14:20,30
+A8,Patient 8,D1,Filling,General Operatory,09:15,51
+A9,Patient 9,D12,Crown,General Operatory,11:15,56
+A10,Patient 10,D8,Checkup/Cleaning,General Operatory,12:35,58
+A11,Patient 11,D3,Extraction,General Operatory,14:55,22
+A12,Patient 12,D5,Checkup/Cleaning,General Operatory,13:50,45
+A13,Patient 13,D9,Filling,General Operatory,09:55,58
+A14,Patient 14,D18,Root Canal,Endodontic Operatory,10:00,82
+A15,Patient 15,D13,X-ray/Imaging,Imaging Room,10:25,15
+A16,Patient 16,D17,Filling,General Operatory,09:50,35
+A17,Patient 17,D11,Checkup/Cleaning,General Operatory,09:45,47
+A18,Patient 18,D8,Checkup/Cleaning,General Operatory,12:40,52
+A19,Patient 19,D8,Checkup/Cleaning,General Operatory,14:35,31
+A20,Patient 20,D3,Filling,General Operatory,13:15,37
+A21,Patient 21,D7,Filling,General Operatory,13:05,56
+A22,Patient 22,D8,Root Canal,Endodontic Operatory,11:10,85
+A23,Patient 23,D4,Checkup/Cleaning,General Operatory,10:15,43
+A24,Patient 24,D14,Filling,General Operatory,12:55,23
+A25,Patient 25,D2,Filling,General Operatory,14:15,41
+A26,Patient 26,D8,Checkup/Cleaning,General Operatory,11:20,47
+A27,Patient 27,D14,Checkup/Cleaning,General Operatory,09:50,44
+A28,Patient 28,D15,Root Canal,Endodontic Operatory,10:10,87
+A29,Patient 29,D2,Extraction,General Operatory,14:10,37
+A30,Patient 30,D3,Crown,General Operatory,09:55,57
+A31,Patient 31,D14,Filling,General Operatory,14:40,33
+A32,Patient 32,D2,Checkup/Cleaning,General Operatory,11:35,30
+A33,Patient 33,D15,Checkup/Cleaning,General Operatory,11:00,52
+A34,Patient 34,D16,Checkup/Cleaning,General Operatory,10:50,39
+A35,Patient 35,D19,Extraction,General Operatory,13:10,21
+A36,Patient 36,D2,Checkup/Cleaning,General Operatory,13:10,45
+A37,Patient 37,D6,Checkup/Cleaning,General Operatory,09:55,46
+A38,Patient 38,D3,Filling,General Operatory,11:20,35
+A39,Patient 39,D19,Checkup/Cleaning,General Operatory,10:25,49
+A40,Patient 40,D3,Filling,General Operatory,13:05,57
+A41,Patient 41,D11,Crown,General Operatory,10:50,36
+A42,Patient 42,D8,Checkup/Cleaning,General Operatory,13:05,34
+A43,Patient 43,D15,Checkup/Cleaning,General Operatory,09:05,54
+A44,Patient 44,D15,Extraction,General Operatory,09:15,38
+A45,Patient 45,D18,Checkup/Cleaning,General Operatory,10:10,38
+A46,Patient 46,D3,Crown,General Operatory,11:25,41
+A47,Patient 47,D15,Root Canal,Endodontic Operatory,10:15,82
+A48,Patient 48,D17,Checkup/Cleaning,General Operatory,12:50,56
+A49,Patient 49,D4,Crown,General Operatory,10:00,34
+A50,Patient 50,D4,Extraction,General Operatory,10:15,24
+A51,Patient 51,D20,Checkup/Cleaning,General Operatory,10:25,40
+A52,Patient 52,D9,Filling,General Operatory,11:15,36
+A53,Patient 53,D3,Extraction,General Operatory,09:45,28
+A54,Patient 54,D11,Root Canal,Endodontic Operatory,09:45,80
+A55,Patient 55,D15,Filling,General Operatory,10:25,47
+A56,Patient 56,D4,Checkup/Cleaning,General Operatory,10:30,58
+A57,Patient 57,D18,Checkup/Cleaning,General Operatory,13:15,41
+A58,Patient 58,D5,Filling,General Operatory,12:45,22
+A59,Patient 59,D2,Crown,General Operatory,13:00,36
+A60,Patient 60,D4,Filling,General Operatory,11:25,55
+A61,Patient 61,D20,Extraction,General Operatory,14:30,27
+A62,Patient 62,D6,Crown,General Operatory,10:10,30
+A63,Patient 63,D14,Root Canal,Endodontic Operatory,12:30,87
+A64,Patient 64,D9,Checkup/Cleaning,General Operatory,09:30,52
+A65,Patient 65,D2,Crown,General Operatory,10:15,37
+A66,Patient 66,D12,Checkup/Cleaning,General Operatory,11:10,55
+A67,Patient 67,D8,Checkup/Cleaning,General Operatory,11:35,36
+A68,Patient 68,D9,Crown,General Operatory,11:10,60
+A69,Patient 69,D12,Extraction,General Operatory,11:10,32
+A70,Patient 70,D11,Crown,General Operatory,10:05,33
+A71,Patient 71,D19,X-ray/Imaging,Imaging Room,09:55,12
+A72,Patient 72,D20,Filling,General Operatory,11:50,40
+A73,Patient 73,D17,Checkup/Cleaning,General Operatory,12:45,58
+A74,Patient 74,D9,Checkup/Cleaning,General Operatory,09:40,43
+A75,Patient 75,D18,Extraction,General Operatory,11:45,26
+A76,Patient 76,D3,Crown,General Operatory,11:45,59
+A77,Patient 77,D11,Extraction,General Operatory,11:00,23
+A78,Patient 78,D17,Checkup/Cleaning,General Operatory,11:35,43
+A79,Patient 79,D10,Filling,General Operatory,11:40,32
+A80,Patient 80,D6,Extraction,General Operatory,11:50,29
+A81,Patient 81,D1,Checkup/Cleaning,General Operatory,10:30,36
+A82,Patient 82,D20,Extraction,General Operatory,11:45,34
+A83,Patient 83,D7,Filling,General Operatory,12:50,30
+A84,Patient 84,D10,Filling,General Operatory,12:50,60
+A85,Patient 85,D3,Root Canal,Endodontic Operatory,10:00,84
+A86,Patient 86,D8,Root Canal,Endodontic Operatory,09:45,64
+A87,Patient 87,D8,X-ray/Imaging,Imaging Room,14:35,14
+A88,Patient 88,D15,Filling,General Operatory,10:30,60
+A89,Patient 89,D13,Filling,General Operatory,09:10,35
+A90,Patient 90,D4,Root Canal,Endodontic Operatory,09:40,67
+A91,Patient 91,D15,Checkup/Cleaning,General Operatory,11:20,37
+A92,Patient 92,D15,Checkup/Cleaning,General Operatory,11:00,44
+A93,Patient 93,D18,Filling,General Operatory,13:10,48
+A94,Patient 94,D14,Root Canal,Endodontic Operatory,11:10,77
+A95,Patient 95,D16,Filling,General Operatory,15:55,35
+A96,Patient 96,D9,Root Canal,Endodontic Operatory,10:15,76
+A97,Patient 97,D8,Checkup/Cleaning,General Operatory,13:05,32
+A98,Patient 98,D8,Checkup/Cleaning,General Operatory,12:45,40
+A99,Patient 99,D5,Checkup/Cleaning,General Operatory,13:50,42
+A100,Patient 100,D7,Checkup/Cleaning,General Operatory,11:45,43
+A101,Patient 101,D15,Filling,General Operatory,11:40,33
+A102,Patient 102,D13,Crown,General Operatory,10:25,48
+A103,Patient 103,D19,Filling,General Operatory,11:40,20
+A104,Patient 104,D13,Crown,General Operatory,11:20,60
+A105,Patient 105,D18,Extraction,General Operatory,14:50,37
+A106,Patient 106,D8,Filling,General Operatory,11:45,37
+A107,Patient 107,D1,Filling,General Operatory,10:35,45
+A108,Patient 108,D15,Crown,General Operatory,10:25,49
+A109,Patient 109,D13,Filling,General Operatory,09:40,21
+A110,Patient 110,D5,Crown,General Operatory,11:00,35
+A111,Patient 111,D13,Checkup/Cleaning,General Operatory,10:10,44
+A112,Patient 112,D13,Checkup/Cleaning,General Operatory,11:20,60
+A113,Patient 113,D9,Root Canal,Endodontic Operatory,09:40,75
+A114,Patient 114,D2,X-ray/Imaging,Imaging Room,09:55,12
+A115,Patient 115,D2,Root Canal,Endodontic Operatory,09:50,90
+A116,Patient 116,D1,Extraction,General Operatory,09:40,27
+A117,Patient 117,D4,Filling,General Operatory,10:10,33
+A118,Patient 118,D12,Checkup/Cleaning,General Operatory,10:30,49
+A119,Patient 119,D6,X-ray/Imaging,Imaging Room,13:00,10
+A120,Patient 120,D10,Filling,General Operatory,11:25,44
+A121,Patient 121,D3,Filling,General Operatory,09:50,60
+A122,Patient 122,D10,Crown,General Operatory,14:10,49
+A123,Patient 123,D19,Root Canal,Endodontic Operatory,12:50,71
+A124,Patient 124,D12,Checkup/Cleaning,General Operatory,09:45,50
+A125,Patient 125,D14,Root Canal,Endodontic Operatory,11:30,63
+A126,Patient 126,D15,Extraction,General Operatory,09:45,33
+A127,Patient 127,D9,Extraction,General Operatory,11:40,37
+A128,Patient 128,D15,Filling,General Operatory,10:05,57
+A129,Patient 129,D8,Root Canal,Endodontic Operatory,11:35,62
+A130,Patient 130,D8,Root Canal,Endodontic Operatory,12:45,78
+A131,Patient 131,D11,Checkup/Cleaning,General Operatory,09:55,57
+A132,Patient 132,D16,Checkup/Cleaning,General Operatory,12:30,55
+A133,Patient 133,D9,Crown,General Operatory,10:20,52
+A134,Patient 134,D1,Filling,General Operatory,09:25,32
+A135,Patient 135,D14,Filling,General Operatory,13:15,35
+A136,Patient 136,D16,Filling,General Operatory,11:05,21
+A137,Patient 137,D8,Filling,General Operatory,11:50,35
+A138,Patient 138,D12,Filling,General Operatory,10:10,53
+A139,Patient 139,D18,Checkup/Cleaning,General Operatory,11:25,52
+A140,Patient 140,D10,Checkup/Cleaning,General Operatory,12:55,33
+A141,Patient 141,D11,Checkup/Cleaning,General Operatory,11:15,47
+A142,Patient 142,D7,Checkup/Cleaning,General Operatory,11:50,45
+A143,Patient 143,D17,Filling,General Operatory,14:30,26
+A144,Patient 144,D10,Checkup/Cleaning,General Operatory,11:15,35
+A145,Patient 145,D18,Checkup/Cleaning,General Operatory,10:20,31
+A146,Patient 146,D10,Extraction,General Operatory,13:20,24
+A147,Patient 147,D4,Crown,General Operatory,10:15,48
+A148,Patient 148,D16,Filling,General Operatory,11:05,31
+A149,Patient 149,D16,Checkup/Cleaning,General Operatory,12:45,32
+A150,Patient 150,D3,Filling,General Operatory,09:55,23
+A151,Patient 151,D19,Crown,General Operatory,09:55,32
+A152,Patient 152,D18,Root Canal,Endodontic Operatory,13:00,79
+A153,Patient 153,D8,Root Canal,Endodontic Operatory,11:30,72
+A154,Patient 154,D10,Crown,General Operatory,11:50,43
+A155,Patient 155,D20,Checkup/Cleaning,General Operatory,12:35,60
+A156,Patient 156,D7,Extraction,General Operatory,12:55,28
+A157,Patient 157,D6,Checkup/Cleaning,General Operatory,09:55,47
+A158,Patient 158,D1,Filling,General Operatory,10:00,58
+A159,Patient 159,D2,Checkup/Cleaning,General Operatory,11:40,52
+A160,Patient 160,D3,Extraction,General Operatory,15:00,28
+A161,Patient 161,D19,Extraction,General Operatory,11:25,26
+A162,Patient 162,D18,Checkup/Cleaning,General Operatory,11:25,34
+A163,Patient 163,D3,Checkup/Cleaning,General Operatory,11:45,55
+A164,Patient 164,D19,Crown,General Operatory,10:15,44
+A165,Patient 165,D10,Extraction,General Operatory,13:20,28
+A166,Patient 166,D16,Filling,General Operatory,11:10,58
+A167,Patient 167,D11,Extraction,General Operatory,09:25,20
+A168,Patient 168,D19,Filling,General Operatory,14:40,21
+A169,Patient 169,D19,Checkup/Cleaning,General Operatory,10:15,54
+A170,Patient 170,D17,Extraction,General Operatory,10:25,28
+A171,Patient 171,D14,Extraction,General Operatory,10:15,35
+A172,Patient 172,D12,Filling,General Operatory,10:35,40
+A173,Patient 173,D6,Checkup/Cleaning,General Operatory,11:25,52
+A174,Patient 174,D13,Root Canal,Endodontic Operatory,09:35,77
+A175,Patient 175,D3,Checkup/Cleaning,General Operatory,10:10,40
+A176,Patient 176,D17,Root Canal,Endodontic Operatory,13:05,60
+A177,Patient 177,D15,Filling,General Operatory,10:55,32
+A178,Patient 178,D20,Root Canal,Endodontic Operatory,11:05,80
+A179,Patient 179,D7,Checkup/Cleaning,General Operatory,11:45,34
+A180,Patient 180,D16,Checkup/Cleaning,General Operatory,13:50,50
+A181,Patient 181,D6,Checkup/Cleaning,General Operatory,13:15,30
+A182,Patient 182,D3,Checkup/Cleaning,General Operatory,10:10,56
+A183,Patient 183,D4,Extraction,General Operatory,10:15,24
+A184,Patient 184,D17,Extraction,General Operatory,14:45,33
+A185,Patient 185,D16,Checkup/Cleaning,General Operatory,11:10,47
+A186,Patient 186,D7,Crown,General Operatory,12:45,46
+A187,Patient 187,D3,Checkup/Cleaning,General Operatory,14:25,55
+A188,Patient 188,D11,Crown,General Operatory,09:45,46
+A189,Patient 189,D10,Extraction,General Operatory,13:15,38
+A190,Patient 190,D5,Filling,General Operatory,12:30,50
+A191,Patient 191,D18,Root Canal,Endodontic Operatory,11:20,72
+A192,Patient 192,D7,X-ray/Imaging,Imaging Room,13:20,11
+A193,Patient 193,D8,Crown,General Operatory,10:05,43
+A194,Patient 194,D16,Extraction,General Operatory,12:25,32
+A195,Patient 195,D16,X-ray/Imaging,Imaging Room,14:35,11
+A196,Patient 196,D11,Crown,General Operatory,11:25,57
+A197,Patient 197,D4,Filling,General Operatory,09:15,49
+A198,Patient 198,D14,Crown,General Operatory,10:15,34
+A199,Patient 199,D9,Checkup/Cleaning,General Operatory,09:50,52
+A200,Patient 200,D11,Crown,General Operatory,10:45,57
+A201,Patient 201,D11,Extraction,General Operatory,11:45,35
+A202,Patient 202,D2,Extraction,General Operatory,13:05,27
+A203,Patient 203,D8,Extraction,General Operatory,10:25,33
+A204,Patient 204,D4,Filling,General Operatory,09:10,39
+A205,Patient 205,D11,Root Canal,Endodontic Operatory,10:00,69
+A206,Patient 206,D14,Checkup/Cleaning,General Operatory,11:45,46
+A207,Patient 207,D6,Checkup/Cleaning,General Operatory,13:10,32
+A208,Patient 208,D20,Extraction,General Operatory,12:55,35
+A209,Patient 209,D8,Filling,General Operatory,11:30,36
+A210,Patient 210,D1,Crown,General Operatory,10:20,44
+A211,Patient 211,D6,Checkup/Cleaning,General Operatory,11:45,60
+A212,Patient 212,D10,Extraction,General Operatory,13:00,33
+A213,Patient 213,D15,Root Canal,Endodontic Operatory,10:10,66
+A214,Patient 214,D4,Checkup/Cleaning,General Operatory,10:25,48
+A215,Patient 215,D10,X-ray/Imaging,Imaging Room,10:15,12
+A216,Patient 216,D9,Checkup/Cleaning,General Operatory,10:25,57
+A217,Patient 217,D20,Extraction,General Operatory,14:30,29
+A218,Patient 218,D20,Root Canal,Endodontic Operatory,12:40,67
+A219,Patient 219,D20,Checkup/Cleaning,General Operatory,12:40,54
+A220,Patient 220,D4,Crown,General Operatory,09:25,50
+A221,Patient 221,D15,Checkup/Cleaning,General Operatory,10:35,41
+A222,Patient 222,D3,Crown,General Operatory,13:10,40
+A223,Patient 223,D6,Checkup/Cleaning,General Operatory,12:55,55
+A224,Patient 224,D17,Filling,General Operatory,14:20,37
+A225,Patient 225,D9,Crown,General Operatory,10:00,60
+A226,Patient 226,D11,Root Canal,Endodontic Operatory,09:15,74
+A227,Patient 227,D8,Crown,General Operatory,13:00,53
+A228,Patient 228,D18,Filling,General Operatory,10:00,45
+A229,Patient 229,D18,Checkup/Cleaning,General Operatory,12:55,41
+A230,Patient 230,D19,Filling,General Operatory,11:15,60
+A231,Patient 231,D8,Filling,General Operatory,12:50,59
+A232,Patient 232,D20,Checkup/Cleaning,General Operatory,13:15,32
+A233,Patient 233,D10,Extraction,General Operatory,09:50,23
+A234,Patient 234,D2,Checkup/Cleaning,General Operatory,09:50,45
+A235,Patient 235,D8,Crown,General Operatory,11:45,34
+A236,Patient 236,D12,Extraction,General Operatory,10:30,37
+A237,Patient 237,D5,Crown,General Operatory,11:15,50
+A238,Patient 238,D20,Filling,General Operatory,10:10,37
+A239,Patient 239,D7,Filling,General Operatory,14:35,35
+A240,Patient 240,D4,X-ray/Imaging,Imaging Room,11:05,12
+A241,Patient 241,D2,Filling,General Operatory,10:15,32
+A242,Patient 242,D3,Extraction,General Operatory,13:20,40
+A243,Patient 243,D1,Checkup/Cleaning,General Operatory,09:20,40
+A244,Patient 244,D19,Checkup/Cleaning,General Operatory,14:35,56
+A245,Patient 245,D7,Filling,General Operatory,11:25,34
+A246,Patient 246,D20,Checkup/Cleaning,General Operatory,09:50,57
+A247,Patient 247,D18,Checkup/Cleaning,General Operatory,09:45,35
+A248,Patient 248,D5,Checkup/Cleaning,General Operatory,15:15,55
+A249,Patient 249,D19,Checkup/Cleaning,General Operatory,11:20,35
+A250,Patient 250,D5,Extraction,General Operatory,10:50,36
+A251,Patient 251,D16,Filling,General Operatory,14:15,43
+A252,Patient 252,D4,Filling,General Operatory,10:35,34
+A253,Patient 253,D17,Checkup/Cleaning,General Operatory,09:45,50
+A254,Patient 254,D16,Root Canal,Endodontic Operatory,13:30,73
+A255,Patient 255,D16,Extraction,General Operatory,10:50,34
+A256,Patient 256,D11,Extraction,General Operatory,09:30,22
+A257,Patient 257,D20,Extraction,General Operatory,13:05,37
+A258,Patient 258,D13,X-ray/Imaging,Imaging Room,10:30,14
+A259,Patient 259,D17,Extraction,General Operatory,14:30,23
+A260,Patient 260,D18,Extraction,General Operatory,11:45,26
+A261,Patient 261,D8,Filling,General Operatory,11:35,49
+A262,Patient 262,D4,Checkup/Cleaning,General Operatory,10:45,40
+A263,Patient 263,D12,X-ray/Imaging,Imaging Room,10:00,15
+A264,Patient 264,D3,Root Canal,Endodontic Operatory,11:10,62
+A265,Patient 265,D12,Root Canal,Endodontic Operatory,09:40,77
+A266,Patient 266,D18,Filling,General Operatory,11:40,27
+A267,Patient 267,D14,Crown,General Operatory,10:00,53
+A268,Patient 268,D20,Checkup/Cleaning,General Operatory,13:15,33
+A269,Patient 269,D7,Checkup/Cleaning,General Operatory,09:50,45
+A270,Patient 270,D12,Root Canal,Endodontic Operatory,09:20,71
+A271,Patient 271,D19,Checkup/Cleaning,General Operatory,14:40,43
+A272,Patient 272,D20,Extraction,General Operatory,12:45,40
+A273,Patient 273,D20,Crown,General Operatory,12:50,56
+A274,Patient 274,D1,Checkup/Cleaning,General Operatory,11:20,52
+A275,Patient 275,D11,Filling,General Operatory,11:25,31
+A276,Patient 276,D19,Extraction,General Operatory,10:30,22
+A277,Patient 277,D1,Checkup/Cleaning,General Operatory,09:35,46
+A278,Patient 278,D14,Filling,General Operatory,11:35,30
+A279,Patient 279,D11,Root Canal,Endodontic Operatory,10:15,78
+A280,Patient 280,D2,Checkup/Cleaning,General Operatory,12:35,54
+A281,Patient 281,D3,Checkup/Cleaning,General Operatory,11:40,51
+A282,Patient 282,D20,Filling,General Operatory,10:20,37
+A283,Patient 283,D4,Checkup/Cleaning,General Operatory,10:30,33
+A284,Patient 284,D16,Filling,General Operatory,11:00,39
+A285,Patient 285,D13,X-ray/Imaging,Imaging Room,09:25,10
+A286,Patient 286,D10,Crown,General Operatory,10:00,54
+A287,Patient 287,D10,Checkup/Cleaning,General Operatory,11:45,30
+A288,Patient 288,D6,Checkup/Cleaning,General Operatory,12:50,47
+A289,Patient 289,D17,Filling,General Operatory,10:10,42
+A290,Patient 290,D2,Filling,General Operatory,10:05,49
+A291,Patient 291,D19,Filling,General Operatory,13:20,45
+A292,Patient 292,D14,Checkup/Cleaning,General Operatory,10:05,42
+A293,Patient 293,D6,Root Canal,Endodontic Operatory,11:25,79
+A294,Patient 294,D3,Filling,General Operatory,10:15,26
+A295,Patient 295,D19,Filling,General Operatory,11:40,25
+A296,Patient 296,D11,Checkup/Cleaning,General Operatory,09:10,54
+A297,Patient 297,D17,Extraction,General Operatory,12:55,36
+A298,Patient 298,D12,Filling,General Operatory,09:15,29
+A299,Patient 299,D5,Checkup/Cleaning,General Operatory,13:55,35
+A300,Patient 300,D3,Checkup/Cleaning,General Operatory,13:05,54

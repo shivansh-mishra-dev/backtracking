@@ -1,0 +1,799 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DentalSched - Appointment Scheduler</title>
+    <link href="https://api.fontshare.com/v2/css?f[]=general-sans@700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=JetBrains+Mono&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #6366F1;
+            --primary-hover: #4F46E5;
+            --neutral: #9C9C9C;
+            --background: #FAFAFA;
+            --surface: #FFFFFF;
+            --text-primary: #0A0A0A;
+            --text-secondary: #6B6B6B;
+            --border: #E8E8EC;
+            --success: #10B981;
+            --warning: #F59E0B;
+            --error: #EF4444;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--background);
+            color: var(--text-primary);
+            font-family: 'DM Sans', sans-serif;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* Typography */
+        h1, h2, h3, h4, h5, h6, .display-font {
+            font-family: 'General Sans', sans-serif;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+        .display { font-size: 72px; letter-spacing: -0.04em; }
+        .headline { font-size: 60px; letter-spacing: -0.03em; }
+        .section-heading { font-size: 32px; letter-spacing: -0.03em; }
+        .subhead { font-size: 24px; letter-spacing: -0.03em; }
+        .body-text { font-size: 15px; }
+        .small-text { font-size: 13px; }
+        .caption-text { font-size: 12px; }
+        .overline-text { font-size: 11px; text-transform: uppercase; font-weight: 500; letter-spacing: 0.05em; color: var(--text-secondary); }
+        .code-font { font-family: 'JetBrains Mono', monospace; }
+
+        /* Navigation */
+        .nav {
+            position: sticky;
+            top: 0;
+            height: 56px;
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            padding: 0 24px;
+            z-index: 50;
+        }
+        .nav-logo {
+            font-family: 'General Sans', sans-serif;
+            font-weight: 700;
+            font-size: 20px;
+            letter-spacing: -0.02em;
+        }
+        .nav-links {
+            margin-left: 48px;
+            display: flex;
+            gap: 24px;
+        }
+        .nav-links a {
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            padding: 4px 8px;
+            border-radius: 4px;
+            transition: background 200ms ease;
+        }
+        .nav-links a:hover {
+            background: var(--background);
+            color: var(--text-primary);
+        }
+        .nav-links a.active {
+            color: var(--text-primary);
+        }
+        .nav-actions {
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        .search-bar {
+            display: flex;
+            align-items: center;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 6px 12px;
+            background: var(--surface);
+            color: var(--neutral);
+            font-size: 14px;
+        }
+        .search-bar .badge {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            background: var(--background);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            padding: 2px 6px;
+            margin-left: 32px;
+        }
+        .avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 9999px;
+            background: var(--primary);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        /* Layout */
+        .container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 64px 24px;
+            display: grid;
+            gap: 24px;
+            grid-template-columns: 320px 1fr;
+        }
+        @media (max-width: 1024px) {
+            .container {
+                grid-template-columns: 1fr;
+                padding: 48px 24px;
+            }
+        }
+
+        /* Cards */
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            overflow: hidden;
+            transition: all 200ms ease;
+        }
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.08);
+        }
+        .card-header {
+            padding: 16px 24px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .card-body {
+            padding: 24px;
+        }
+        .card-footer {
+            padding: 16px 24px;
+            border-top: 1px solid var(--border);
+            background: var(--background);
+        }
+
+        /* Buttons */
+        .btn {
+            font-family: 'DM Sans', sans-serif;
+            font-weight: 500;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 200ms ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border: none;
+            outline: none;
+        }
+        .btn:hover {
+            transform: translateY(-1px);
+        }
+        .btn:focus-visible {
+            box-shadow: 0 0 0 3px rgba(99,102,241,0.12);
+        }
+        .btn-primary {
+            background: var(--primary);
+            color: #FFFFFF;
+            padding: 10px 16px;
+            font-size: 14px;
+        }
+        .btn-primary:hover {
+            background: var(--primary-hover);
+            box-shadow: 0 4px 12px rgba(99,102,241,0.35);
+        }
+        .btn-secondary {
+            background: transparent;
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+            padding: 10px 16px;
+            font-size: 14px;
+        }
+        .btn-secondary:hover {
+            background: var(--background);
+        }
+        .btn-ghost {
+            background: transparent;
+            color: var(--text-secondary);
+            padding: 10px 16px;
+            font-size: 14px;
+        }
+        .btn-ghost:hover {
+            color: var(--text-primary);
+        }
+        .btn-full {
+            width: 100%;
+        }
+
+        /* Forms */
+        .form-group {
+            margin-bottom: 16px;
+        }
+        label {
+            display: block;
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+        .input, .select {
+            width: 100%;
+            border: 1px solid var(--border);
+            background: var(--surface);
+            border-radius: 6px;
+            padding: 10px 14px;
+            font-size: 14px;
+            font-family: 'DM Sans', sans-serif;
+            color: var(--text-primary);
+            outline: none;
+            transition: all 200ms ease;
+            box-sizing: border-box;
+            appearance: none;
+        }
+        .select {
+            background-image: url("data:image/svg+xml,%3Csvg width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%239C9C9C' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 14px center;
+            padding-right: 36px;
+        }
+        .input:focus, .select:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(99,102,241,0.12);
+        }
+
+        /* Chips */
+        .chip {
+            display: inline-flex;
+            align-items: center;
+            background: #F3F4F6;
+            color: #4B5563;
+            border-radius: 9999px;
+            padding: 4px 12px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        .chip-active {
+            background: var(--primary);
+            color: white;
+        }
+        .chip-success { background: rgba(16, 185, 129, 0.1); color: var(--success); }
+        .chip-warning { background: rgba(245, 158, 11, 0.1); color: var(--warning); }
+        .chip-error { background: rgba(239, 68, 68, 0.1); color: var(--error); }
+
+        /* Lists */
+        .list {
+            display: flex;
+            flex-direction: column;
+        }
+        .list-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border);
+            transition: background 200ms ease;
+        }
+        .list-item:last-child {
+            border-bottom: none;
+        }
+        .list-item:hover {
+            background: var(--background);
+        }
+
+        /* Utility */
+        .flex { display: flex; }
+        .items-center { align-items: center; }
+        .justify-between { justify-content: space-between; }
+        .gap-4 { gap: 4px; }
+        .gap-8 { gap: 8px; }
+        .gap-16 { gap: 16px; }
+        .gap-24 { gap: 24px; }
+        .mt-4 { margin-top: 4px; }
+        .mt-8 { margin-top: 8px; }
+        .mt-24 { margin-top: 24px; }
+        .mb-16 { margin-bottom: 16px; }
+        .mb-32 { margin-bottom: 32px; }
+        .p-0 { padding: 0 !important; }
+        .p-16 { padding: 16px; }
+
+        /* Schedule Grid Component */
+        .appointment-block {
+            background: rgba(99, 102, 241, 0.1);
+            border: 1px solid rgba(99, 102, 241, 0.2);
+            color: var(--primary);
+            border-radius: 4px;
+            padding: 4px 8px;
+            font-size: 12px;
+            font-weight: 500;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .appointment-warning {
+            background: rgba(245, 158, 11, 0.1);
+            border: 1px solid rgba(245, 158, 11, 0.2);
+            color: var(--warning);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Navigation -->
+    <nav class="nav">
+        <div class="nav-logo">DentalSched</div>
+        <div class="nav-links">
+            <a href="#" id="nav-dashboard" class="active">Dashboard</a>
+            <a href="#" id="nav-view-data">View Data</a>
+            <a href="#" id="nav-visualizer">Visualizer</a>
+        </div>
+        <div class="nav-actions">
+            <div class="search-bar">
+                <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                <span style="margin-left: 8px;">Search...</span>
+                <span class="badge">⌘K</span>
+            </div>
+            <div class="avatar">A</div>
+        </div>
+    </nav>
+
+    <!-- Main Container -->
+    <main class="container">
+        
+        <!-- Sidebar Configuration -->
+        <aside style="position: sticky; top: 88px; align-self: start;">
+            <div class="card">
+                <div class="card-header" style="flex-direction: column; align-items: flex-start; gap: 4px;">
+                    <h3 class="subhead" style="font-size: 20px;">Scheduling Engine</h3>
+                    <p class="body-text" style="color: var(--text-secondary); font-size: 13px;">Configure constraints &amp; dataset</p>
+                </div>
+                <div class="card-body">
+                    <div class="form-group mb-16">
+                        <label>Dataset</label>
+                        <select class="select">
+                            <option>Case 1 — Small Realistic</option>
+                            <option>Case 2 — Medium Synthetic</option>
+                            <option>Case 3 — Large Synthetic</option>
+                            <option>Case 4 — Huge Synthetic</option>
+                            <option>Case 5 — Extreme Synthetic</option>
+                            <option>Custom Upload...</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group mb-24 p-16" style="background: var(--background); border: 1px solid var(--border); border-radius: 6px;">
+                        <label style="margin-bottom: 12px; color: var(--text-primary);">Required Data Files</label>
+                        
+                        <div class="flex items-center justify-between mb-8">
+                            <div class="flex items-center gap-8">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: var(--text-secondary);"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+                                <span class="small-text font-medium">doctors.csv</span>
+                            </div>
+                            <span class="chip chip-success" style="padding: 2px 8px; font-size: 11px;">Loaded</span>
+                        </div>
+
+                        <div class="flex items-center justify-between mb-8">
+                            <div class="flex items-center gap-8">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: var(--text-secondary);"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+                                <span class="small-text font-medium">rooms.csv</span>
+                            </div>
+                            <span class="chip chip-success" style="padding: 2px 8px; font-size: 11px;">Loaded</span>
+                        </div>
+
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-8">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: var(--text-secondary);"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+                                <span class="small-text font-medium">requests.csv</span>
+                            </div>
+                            <span class="chip chip-success" style="padding: 2px 8px; font-size: 11px;">Loaded</span>
+                        </div>
+                    </div>
+
+                    <div class="form-group mb-32">
+                        <label>Search Algorithm</label>
+                        <select class="select">
+                            <option>Backtracking + Forward Checking</option>
+                            <option>Standard Backtracking</option>
+                            <option>Brute-Force Search</option>
+                        </select>
+                    </div>
+                    
+                    <button class="btn btn-primary btn-full">Generate Schedule</button>
+                </div>
+                <div class="card-footer text-center" style="display: flex; justify-content: center;">
+                    <span class="caption-text" style="color: var(--text-secondary);">Using Local SQLite Database</span>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <div id="dashboard-view" class="content flex flex-col gap-24" style="display: flex; flex-direction: column; gap: 32px;">
+            
+            <!-- Page Header -->
+            <div class="mb-8">
+                <h1 class="section-heading">Schedule Overview</h1>
+                <p class="body-text mt-4" style="color: var(--text-secondary);">Evaluate the output of the backtracking assignment algorithm.</p>
+            </div>
+
+            <!-- Stats Grid -->
+            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px;">
+                <div class="card p-16">
+                    <div class="overline-text">Status</div>
+                    <div class="mt-8"><span class="chip chip-success">Complete Assignment</span></div>
+                </div>
+                <div class="card p-16">
+                    <div class="overline-text">Runtime</div>
+                    <div class="display-font mt-4" style="font-size: 28px;">0.14s</div>
+                </div>
+                <div class="card p-16">
+                    <div class="overline-text">States Explored</div>
+                    <div class="display-font mt-4" style="font-size: 28px;">3,042</div>
+                </div>
+                <div class="card p-16">
+                    <div class="overline-text">Backtracks</div>
+                    <div class="display-font mt-4" style="font-size: 28px;">89</div>
+                </div>
+            </div>
+
+            <!-- Schedule View Grid -->
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="subhead" style="font-size: 20px;">Operatory Assignments</h3>
+                    <div class="flex gap-8">
+                        <span class="chip">3 Dentists</span>
+                        <span class="chip">8 Operatories</span>
+                    </div>
+                </div>
+                <div class="card-body p-0">
+                    <div class="list">
+                        <!-- Row 1 -->
+                        <div class="list-item">
+                            <div style="width: 140px;">
+                                <div style="font-weight: 500; font-size: 14px;">Operatory 1</div>
+                                <div class="caption-text mt-4" style="color: var(--text-secondary);">General</div>
+                            </div>
+                            <div style="flex: 1; display: flex; gap: 8px;">
+                                <div class="appointment-block" style="flex: 2;">09:00 - Smith (Cleaning)</div>
+                                <div class="appointment-block" style="flex: 3;">10:00 - Jones (Filling)</div>
+                                <div class="appointment-block" style="flex: 1;">12:00 - Doe (X-Ray)</div>
+                            </div>
+                        </div>
+                        <!-- Row 2 -->
+                        <div class="list-item">
+                            <div style="width: 140px;">
+                                <div style="font-weight: 500; font-size: 14px;">Operatory 2</div>
+                                <div class="caption-text mt-4" style="color: var(--text-secondary);">Endodontic</div>
+                            </div>
+                            <div style="flex: 1; display: flex; gap: 8px;">
+                                <div style="flex: 1;"></div>
+                                <div class="appointment-block appointment-warning" style="flex: 4;">09:30 - Doe (Root Canal)</div>
+                                <div class="appointment-block" style="flex: 2;">14:00 - Smith (Crown)</div>
+                            </div>
+                        </div>
+                        <!-- Row 3 -->
+                        <div class="list-item">
+                            <div style="width: 140px;">
+                                <div style="font-weight: 500; font-size: 14px;">Operatory 3</div>
+                                <div class="caption-text mt-4" style="color: var(--text-secondary);">Imaging</div>
+                            </div>
+                            <div style="flex: 1; display: flex; gap: 8px;">
+                                <div class="appointment-block" style="flex: 1;">09:00 - Jones (X-Ray)</div>
+                                <div style="flex: 2;"></div>
+                                <div class="appointment-block" style="flex: 1;">11:00 - Smith (X-Ray)</div>
+                                <div style="flex: 2;"></div>
+                            </div>
+                        </div>
+                        <!-- Row 4 -->
+                        <div class="list-item">
+                            <div style="width: 140px;">
+                                <div style="font-weight: 500; font-size: 14px;">Operatory 4</div>
+                                <div class="caption-text mt-4" style="color: var(--text-secondary);">General</div>
+                            </div>
+                            <div style="flex: 1; display: flex; gap: 8px; justify-content: center; align-items: center;">
+                                <span class="caption-text" style="color: var(--neutral); font-style: italic;">No appointments assigned</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+
+            <!-- Performance Chart -->
+            <div class="card">
+                <div class="card-header flex justify-between items-center">
+                    <h3 class="subhead" style="font-size: 20px;">Runtime Comparison</h3>
+                    <span class="caption-text" style="color: var(--text-secondary);">Log Scale (ms)</span>
+                </div>
+                <div class="card-body" style="height: 400px; padding: 24px;">
+                    <canvas id="runtimeChart"></canvas>
+                </div>
+            </div>
+
+        </div> <!-- End dashboard-view -->
+
+        <!-- Data View -->
+        <div id="data-view" class="content flex flex-col gap-24" style="display: none; flex-direction: column; gap: 32px;">
+            <div class="mb-8">
+                <h1 class="section-heading">Dataset Explorer</h1>
+                <p class="body-text mt-4" style="color: var(--text-secondary);">View the constraints and requests loaded for the current benchmark case.</p>
+            </div>
+
+            <style>
+                .data-table { width: 100%; border-collapse: collapse; font-size: 14px; text-align: left; }
+                .data-table th { padding: 12px 16px; border-bottom: 2px solid var(--border); color: var(--text-secondary); font-weight: 500; }
+                .data-table td { padding: 12px 16px; border-bottom: 1px solid var(--border); }
+                .data-table tr:hover { background: var(--background); }
+            </style>
+
+            <div class="card">
+                <div class="card-header"><h3 class="subhead" style="font-size: 18px;">doctors.csv</h3></div>
+                <div class="card-body p-0" style="overflow-x: auto;">
+                    <table class="data-table">
+                        <thead><tr><th>Dentist ID</th><th>Name</th><th>Start Time</th><th>End Time</th></tr></thead>
+                        <tbody>
+                            <tr><td>D1</td><td>Dr. Smith</td><td>09:00</td><td>17:00</td></tr>
+                            <tr><td>D2</td><td>Dr. Jones</td><td>09:00</td><td>17:00</td></tr>
+                            <tr><td>D3</td><td>Dr. Doe</td><td>08:30</td><td>15:00</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header"><h3 class="subhead" style="font-size: 18px;">rooms.csv</h3></div>
+                <div class="card-body p-0" style="overflow-x: auto;">
+                    <table class="data-table">
+                        <thead><tr><th>Operatory ID</th><th>Type</th></tr></thead>
+                        <tbody>
+                            <tr><td>O1</td><td>General</td></tr>
+                            <tr><td>O2</td><td>Endodontic</td></tr>
+                            <tr><td>O3</td><td>Imaging</td></tr>
+                            <tr><td>O4</td><td>General</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header"><h3 class="subhead" style="font-size: 18px;">requests.csv</h3></div>
+                <div class="card-body p-0" style="overflow-x: auto;">
+                    <table class="data-table">
+                        <thead><tr><th>Req ID</th><th>Patient</th><th>Dentist</th><th>Procedure</th><th>Requested Time</th><th>Duration (min)</th></tr></thead>
+                        <tbody>
+                            <tr><td>R1</td><td>Alice P.</td><td>Dr. Smith</td><td>Cleaning</td><td>09:00</td><td>45</td></tr>
+                            <tr><td>R2</td><td>Bob M.</td><td>Dr. Doe</td><td>Root Canal</td><td>09:30</td><td>120</td></tr>
+                            <tr><td>R3</td><td>Charlie T.</td><td>Dr. Jones</td><td>Filling</td><td>10:00</td><td>60</td></tr>
+                            <tr><td>R4</td><td>David L.</td><td>Dr. Smith</td><td>X-Ray</td><td>11:00</td><td>15</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div> <!-- End data-view -->
+        
+        <!-- Visualizer View -->
+        <div id="visualizer-view" class="content flex flex-col gap-24" style="display: none; flex-direction: column; gap: 32px;">
+            <div class="mb-8">
+                <h1 class="section-heading">Algorithm Visualizer</h1>
+                <p class="body-text mt-4" style="color: var(--text-secondary);">Step-by-step playback of the backtracking search iterations.</p>
+            </div>
+
+            <!-- Controls -->
+            <div class="card p-16 flex items-center justify-between">
+                <div class="flex items-center gap-16">
+                    <button class="btn btn-secondary">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M6 4l15 8-15 8z"/></svg>
+                        <span style="margin-left: 8px;">Play</span>
+                    </button>
+                    <button class="btn btn-secondary">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+                        Prev
+                    </button>
+                    <button class="btn btn-secondary">
+                        Next
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+                    </button>
+                </div>
+                <div class="code-font" style="font-size: 14px; color: var(--text-secondary);">
+                    Iteration: <span style="color: var(--text-primary); font-weight: 700;">3039</span> / 3042
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 24px;">
+                <!-- Visual Grid -->
+                <div class="card">
+                    <div class="card-header"><h3 class="subhead" style="font-size: 18px;">Current Assignment State</h3></div>
+                    <div class="card-body p-0">
+                        <div class="list">
+                             <div class="list-item">
+                                 <div style="width: 100px; font-weight: 500; font-size: 14px;">Operatory 1</div>
+                                 <div style="flex: 1; display: flex; gap: 4px;">
+                                     <div class="appointment-block" style="flex: 2;">Req_1 (09:00)</div>
+                                     <div class="appointment-block" style="flex: 3; opacity: 0.5; border: 1px dashed var(--primary); background: transparent;">Evaluating...</div>
+                                 </div>
+                             </div>
+                             <div class="list-item">
+                                 <div style="width: 100px; font-weight: 500; font-size: 14px;">Operatory 2</div>
+                                 <div style="flex: 1; display: flex; gap: 4px;">
+                                     <div style="flex: 1;"></div>
+                                     <div class="appointment-block appointment-warning" style="flex: 1; outline: 2px solid var(--error);">Req_42 (14:00) - Conflict</div>
+                                 </div>
+                             </div>
+                             <div class="list-item">
+                                 <div style="width: 100px; font-weight: 500; font-size: 14px;">Operatory 3</div>
+                                 <div style="flex: 1; display: flex; gap: 4px;">
+                                     <div style="flex: 1;"></div>
+                                 </div>
+                             </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Log Output -->
+                <div class="card">
+                    <div class="card-header"><h3 class="subhead" style="font-size: 18px;">Search Log</h3></div>
+                    <div class="card-body p-0">
+                        <div class="code-font" style="font-size: 13px; line-height: 1.8; padding: 16px; height: 320px; overflow-y: auto; color: #a1a1aa; background: #18181b;">
+                            <div>[STATE 3038] Assigned Req_41 to Op_1</div>
+                            <div style="color: #e4e4e7; margin-top: 8px;">[STATE 3039] Attempting to place Req_42...</div>
+                            <div>> Try Op_1 @ 14:00 -&gt; <span style="color: #f87171;">Conflict (Room Overlap)</span></div>
+                            <div>> Try Op_2 @ 14:00 -&gt; <span style="color: #f87171;">Conflict (Wrong Type)</span></div>
+                            <div class="mt-8 flex items-center gap-8" style="color: #fbbf24; font-weight: bold;">
+                                <span style="display: inline-block; width: 8px; height: 8px; background: #fbbf24; border-radius: 50%; box-shadow: 0 0 8px #fbbf24;"></span>
+                                EVALUATING: Op_3 @ 14:00
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div> <!-- End visualizer-view -->
+
+    </main>
+
+    <!-- Navigation JS -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const navDashboard = document.getElementById('nav-dashboard');
+            const navViewData = document.getElementById('nav-view-data');
+            const navVisualizer = document.getElementById('nav-visualizer');
+            
+            const dashboardView = document.getElementById('dashboard-view');
+            const dataView = document.getElementById('data-view');
+            const visualizerView = document.getElementById('visualizer-view');
+            
+            function hideAll() {
+                dashboardView.style.display = 'none';
+                dataView.style.display = 'none';
+                visualizerView.style.display = 'none';
+                
+                navDashboard.classList.remove('active');
+                navViewData.classList.remove('active');
+                navVisualizer.classList.remove('active');
+            }
+
+            navDashboard.addEventListener('click', (e) => {
+                e.preventDefault();
+                hideAll();
+                navDashboard.classList.add('active');
+                dashboardView.style.display = 'flex';
+            });
+
+            navViewData.addEventListener('click', (e) => {
+                e.preventDefault();
+                hideAll();
+                navViewData.classList.add('active');
+                dataView.style.display = 'flex';
+            });
+            
+            navVisualizer.addEventListener('click', (e) => {
+                e.preventDefault();
+                hideAll();
+                navVisualizer.classList.add('active');
+                visualizerView.style.display = 'flex';
+            });
+        });
+    </script>
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const ctx = document.getElementById('runtimeChart').getContext('2d');
+            
+            // Log scale configuration for large runtime differences
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Small', 'Medium', 'Large', 'Huge', 'Extreme'],
+                    datasets: [
+                        {
+                            label: 'Brute Force',
+                            data: [450, 150000, null, null, null], // Null for timeouts/DNF
+                            backgroundColor: 'rgba(239, 68, 68, 0.8)',
+                            borderRadius: 4
+                        },
+                        {
+                            label: 'Backtracking',
+                            data: [45, 12500, 480000, null, null],
+                            backgroundColor: 'rgba(245, 158, 11, 0.9)',
+                            borderRadius: 4
+                        },
+                        {
+                            label: 'BT + FC',
+                            data: [12, 145, 1250, 8400, 145000],
+                            backgroundColor: 'rgba(99, 102, 241, 1)',
+                            borderRadius: 4
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                            labels: {
+                                font: { family: "'DM Sans', sans-serif", size: 11 },
+                                usePointStyle: true,
+                                boxWidth: 8
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    let val = context.raw;
+                                    if (val === null) return context.dataset.label + ': DNF';
+                                    if (val < 1000) return context.dataset.label + ': ' + val + 'ms';
+                                    return context.dataset.label + ': ' + (val / 1000).toFixed(2) + 's';
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            type: 'logarithmic',
+                            title: {
+                                display: true,
+                                text: 'Time (ms)',
+                                font: { family: "'DM Sans', sans-serif", size: 11 }
+                            },
+                            ticks: {
+                                font: { family: "'DM Sans', sans-serif", size: 10 }
+                            },
+                            grid: {
+                                color: '#E8E8EC'
+                            }
+                        },
+                        x: {
+                            ticks: {
+                                font: { family: "'DM Sans', sans-serif", size: 11 }
+                            },
+                            grid: {
+                                display: false
+                            }
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>
