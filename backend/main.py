@@ -3,7 +3,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 from typing import List
 
-from . import models, database
+import models
+import database
 
 # Create database tables
 models.Base.metadata.create_all(bind=database.engine)
@@ -23,44 +24,117 @@ app.add_middleware(
 def read_root():
     return {"message": "DentalSched API is running"}
 
-@app.post("/upload/{dataset_type}")
-async def upload_dataset(dataset_type: str, file: UploadFile = File(...), db: Session = Depends(database.get_db)):
+import os
+
+@app.post("/load_dataset")
+def load_dataset(case: str, db: Session = Depends(database.get_db)):
     """
-    Endpoint to upload and parse CSV files (doctors, rooms, requests).
-    dataset_type should be one of: 'doctors', 'rooms', 'requests'
+    Endpoint to load CSV files (doctors, rooms, requests) for a specific case from local storage.
     """
-    if dataset_type not in ["doctors", "rooms", "requests"]:
-        raise HTTPException(status_code=400, detail="Invalid dataset type")
-        
-    content = await file.read()
-    decoded_content = content.decode('utf-8').splitlines()
-    import csv
-    reader = csv.DictReader(decoded_content)
+    case_map = {
+        "Case 1 — Small Realistic": "case1_small_realistic",
+        "Case 2 — Medium Synthetic": "case2_medium_synthetic",
+        "Case 3 — Large Synthetic": "case3_large_synthetic",
+        "Case 4 — Huge Synthetic": "case4_huge_synthetic",
+        "Case 5 — Extreme Synthetic": "case5_extreme_synthetic"
+    }
     
-    # Clear existing data for this type
-    if dataset_type == "doctors":
-        db.query(models.Dentist).delete()
-        for row in reader:
-            db.add(models.Dentist(id=row['Dentist ID'], name=row['Name'], start_time=row['Start Time'], end_time=row['End Time']))
-    elif dataset_type == "rooms":
-        db.query(models.Room).delete()
-        for row in reader:
-            db.add(models.Room(id=row['Operatory ID'], room_type=row['Type']))
-    elif dataset_type == "requests":
-        db.query(models.Request).delete()
-        for row in reader:
-            db.add(models.Request(
-                id=row['Req ID'], 
-                patient=row['Patient'], 
-                dentist_id=row['Dentist'], # Assuming CSV dentist name/id matches models
-                procedure=row['Procedure'],
-                requested_time=row['Requested Time'],
-                duration_min=int(row['Duration (min)'])
-            ))
-            
+    folder_name = case_map.get(case)
+    if not folder_name:
+        raise HTTPException(status_code=400, detail="Invalid case selection")
+        
+    base_path = os.path.join(os.path.dirname(__file__), "assets", "data", folder_name)
+    import pandas as pd
+    
+    # Clear existing
+    db.query(models.Dentist).delete()
+    db.query(models.Room).delete()
+    db.query(models.Request).delete()
+    
+    conn = db.connection()
+
+    # Doctors
+    df_docs = pd.read_csv(os.path.join(base_path, "doctors.csv"))
+    df_docs.rename(columns={'doctor_id': 'id', 'name': 'name', 'working_hours_start': 'start_time', 'working_hours_end': 'end_time'}, inplace=True)
+    df_docs = df_docs[['id', 'name', 'start_time', 'end_time']]
+    df_docs.to_sql('dentists', con=conn, if_exists='append', index=False)
+    
+    # Rooms
+    df_rooms = pd.read_csv(os.path.join(base_path, "rooms.csv"))
+    df_rooms.rename(columns={'room_id': 'id', 'room_type': 'room_type'}, inplace=True)
+    df_rooms = df_rooms[['id', 'room_type']]
+    df_rooms.to_sql('rooms', con=conn, if_exists='append', index=False)
+    
+    # Requests
+    df_reqs = pd.read_csv(os.path.join(base_path, "requests.csv"))
+    df_reqs.rename(columns={'request_id': 'id', 'patient': 'patient', 'doctor_id': 'dentist_id', 'procedure_type': 'procedure', 'requested_start': 'requested_time', 'duration_min': 'duration_min'}, inplace=True)
+    df_reqs = df_reqs[['id', 'patient', 'dentist_id', 'procedure', 'requested_time', 'duration_min']]
+    df_reqs.to_sql('requests', con=conn, if_exists='append', index=False)
+    
     db.commit()
     
-    return {"filename": file.filename, "type": dataset_type, "status": "Uploaded successfully"}
+    # Return the loaded data to the frontend so it can populate AppContext
+    requests = db.query(models.Request).all()
+    rooms = db.query(models.Room).all()
+    dentists = db.query(models.Dentist).all()
+    
+    return {
+        "status": "Loaded successfully",
+        "dentists": dentists,
+        "rooms": rooms,
+        "requests": requests
+    }
+
+@app.post("/upload_custom")
+async def upload_custom(
+    doctors_file: UploadFile = File(...),
+    rooms_file: UploadFile = File(...),
+    requests_file: UploadFile = File(...),
+    db: Session = Depends(database.get_db)
+):
+    """
+    Endpoint to process 3 custom uploaded CSV files using pandas and sqlite.
+    """
+    import pandas as pd
+    
+    # Clear existing
+    db.query(models.Dentist).delete()
+    db.query(models.Room).delete()
+    db.query(models.Request).delete()
+
+    conn = db.connection()
+
+    # Process Doctors
+    df_docs = pd.read_csv(doctors_file.file)
+    df_docs.rename(columns={'doctor_id': 'id', 'name': 'name', 'working_hours_start': 'start_time', 'working_hours_end': 'end_time'}, inplace=True)
+    df_docs = df_docs[['id', 'name', 'start_time', 'end_time']]
+    df_docs.to_sql('dentists', con=conn, if_exists='append', index=False)
+    
+    # Process Rooms
+    df_rooms = pd.read_csv(rooms_file.file)
+    df_rooms.rename(columns={'room_id': 'id', 'room_type': 'room_type'}, inplace=True)
+    df_rooms = df_rooms[['id', 'room_type']]
+    df_rooms.to_sql('rooms', con=conn, if_exists='append', index=False)
+    
+    # Process Requests
+    df_reqs = pd.read_csv(requests_file.file)
+    df_reqs.rename(columns={'request_id': 'id', 'patient': 'patient', 'doctor_id': 'dentist_id', 'procedure_type': 'procedure', 'requested_start': 'requested_time', 'duration_min': 'duration_min'}, inplace=True)
+    df_reqs = df_reqs[['id', 'patient', 'dentist_id', 'procedure', 'requested_time', 'duration_min']]
+    df_reqs.to_sql('requests', con=conn, if_exists='append', index=False)
+    
+    db.commit()
+    
+    # Return the loaded data
+    requests = db.query(models.Request).all()
+    rooms = db.query(models.Room).all()
+    dentists = db.query(models.Dentist).all()
+    
+    return {
+        "status": "Custom datasets uploaded successfully",
+        "dentists": dentists,
+        "rooms": rooms,
+        "requests": requests
+    }
 
 @app.post("/schedule")
 def generate_schedule(algorithm: str, db: Session = Depends(database.get_db)):
@@ -76,7 +150,7 @@ def generate_schedule(algorithm: str, db: Session = Depends(database.get_db)):
     if not requests or not rooms or not dentists:
         raise HTTPException(status_code=400, detail="Database is missing data. Please upload CSVs first.")
         
-    from .services.scheduler import run_scheduler
+    from services.scheduler import run_scheduler
     
     result = run_scheduler(requests, rooms, dentists, algorithm)
     return result

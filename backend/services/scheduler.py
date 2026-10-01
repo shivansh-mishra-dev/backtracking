@@ -16,6 +16,8 @@ class DentalSchedulerCSP:
         self.logs = []
         self.states_explored = 0
         self.backtracks = 0
+        self.max_depth = 0
+        self.deepest_req_id = None
         
     def log(self, message: str, state_type: str = "INFO"):
         self.logs.append({"iteration": self.states_explored, "type": state_type, "message": message})
@@ -71,6 +73,12 @@ class DentalSchedulerCSP:
             return True # All assigned!
             
         req = unassigned_reqs[0]
+        
+        current_depth = len(self.assignments)
+        if current_depth >= self.max_depth:
+            self.max_depth = current_depth
+            self.deepest_req_id = req.id
+
         self.states_explored += 1
         self.log(f"Attempting to place {req.id}...", "STATE")
         
@@ -109,8 +117,13 @@ def run_scheduler(requests, rooms, dentists, algorithm="Backtracking") -> Dict[s
         
     runtime_ms = (time.time() - start_time) * 1000
     
+    error_reason = None
+    if not success:
+        error_reason = f"Algorithm exhausted search space and failed to place Request {csp.deepest_req_id}. This request inherently conflicts with a previously assigned request (e.g. Dentist Double-Booked at the same requested time)."
+
     return {
         "status": "success" if success else "failed",
+        "error_reason": error_reason,
         "algorithm": algorithm,
         "runtime_ms": runtime_ms,
         "states_explored": csp.states_explored,

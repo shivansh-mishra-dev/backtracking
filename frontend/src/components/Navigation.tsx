@@ -27,6 +27,12 @@ const Navigation: React.FC = () => {
                 >
                     Visualizer
                 </a>
+                <a 
+                    className={activeTab === 'output' ? 'active' : ''} 
+                    onClick={() => setActiveTab('output')}
+                >
+                    Output
+                </a>
             </div>
             <div className="nav-actions">
                 <div className="search-bar">

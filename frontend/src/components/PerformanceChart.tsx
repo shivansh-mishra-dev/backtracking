@@ -10,6 +10,7 @@ import {
   Legend,
 } from 'chart.js';
 import { Bar } from 'react-chartjs-2';
+import { useAppContext } from '../context/AppContext';
 
 ChartJS.register(
   CategoryScale,
@@ -38,7 +39,7 @@ const options = {
                 label: function(context: any) {
                     let val = context.raw;
                     if (val === null) return context.dataset.label + ': DNF';
-                    if (val < 1000) return context.dataset.label + ': ' + val + 'ms';
+                    if (val < 1000) return context.dataset.label + ': ' + val.toFixed(2) + 'ms';
                     return context.dataset.label + ': ' + (val / 1000).toFixed(2) + 's';
                 }
             }
@@ -70,31 +71,36 @@ const options = {
     }
 };
 
-const data = {
-    labels: ['Small', 'Medium', 'Large', 'Huge', 'Extreme'],
-    datasets: [
-        {
-            label: 'Brute Force',
-            data: [450, 150000, null, null, null],
-            backgroundColor: 'rgba(239, 68, 68, 0.8)',
-            borderRadius: 4
-        },
-        {
-            label: 'Backtracking',
-            data: [45, 12500, 480000, null, null],
-            backgroundColor: 'rgba(245, 158, 11, 0.9)',
-            borderRadius: 4
-        },
-        {
-            label: 'BT + FC',
-            data: [12, 145, 1250, 8400, 145000],
-            backgroundColor: 'rgba(99, 102, 241, 1)',
-            borderRadius: 4
-        }
-    ]
-};
+const DATASETS = [
+    'Case 1 — Small Realistic',
+    'Case 2 — Medium Synthetic',
+    'Case 3 — Large Synthetic',
+    'Case 4 — Huge Synthetic',
+    'Case 5 — Extreme Synthetic'
+];
+
+const ALGORITHMS = [
+    { name: 'Brute-Force Search', color: 'rgba(239, 68, 68, 0.8)' },
+    { name: 'Standard Backtracking', color: 'rgba(245, 158, 11, 0.9)' },
+    { name: 'Backtracking + Forward Checking', color: 'rgba(99, 102, 241, 1)' }
+];
 
 const PerformanceChart: React.FC = () => {
+    const { runHistory } = useAppContext();
+
+    const data = {
+        labels: ['Small', 'Medium', 'Large', 'Huge', 'Extreme'],
+        datasets: ALGORITHMS.map(algo => ({
+            label: algo.name,
+            backgroundColor: algo.color,
+            borderRadius: 4,
+            data: DATASETS.map(ds => {
+                const entry = runHistory.find(h => h.dataset === ds && h.algorithm === algo.name);
+                return entry ? entry.runtime_ms : null;
+            })
+        }))
+    };
+
     return <Bar options={options} data={data} />;
 };
 
