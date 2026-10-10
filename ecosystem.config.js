@@ -8,8 +8,8 @@ module.exports = {
             instances: 1,
             autorestart: true,
             watch: false,
-            // Vite preview is very light; 300M is generous ceiling
-            max_memory_restart: '300M',
+            // Server has 1.9 GB RAM + 2 GB swap. vite preview is very light.
+            max_memory_restart: '200M',
             // Wait 3 s before restarting to avoid crash-loop hammering
             restart_delay: 3000,
             // Only restart on genuine errors, not clean exits (code 0)
@@ -33,8 +33,9 @@ module.exports = {
             instances: 1,
             autorestart: true,
             watch: false,
-            // t3.micro has 1 GB total; cap the backend at 600 MB to leave room for the OS
-            max_memory_restart: '600M',
+            // Scheduling a large dataset can spike to ~700 MB. Cap at 900M so the
+            // OS still has breathing room before it touches the swap file.
+            max_memory_restart: '900M',
             // Same crash-loop protection
             restart_delay: 5000,
             stop_exit_codes: [0],
