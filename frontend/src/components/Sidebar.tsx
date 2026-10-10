@@ -42,7 +42,7 @@ const Sidebar: React.FC = () => {
         if (caseName === 'Custom Upload...') return;
 
         try {
-            const res = await axios.post(`http://127.0.0.1:8000/load_dataset?case=${encodeURIComponent(caseName)}`);
+            const res = await axios.post(`http://127.0.0.1:3013/load_dataset?case=${encodeURIComponent(caseName)}`);
             setDentists(res.data.dentists);
             setRooms(res.data.rooms);
             setRequests(res.data.requests);
@@ -71,7 +71,7 @@ const Sidebar: React.FC = () => {
 
         setLoading(true);
         try {
-            const res = await axios.post('http://127.0.0.1:8000/upload_custom', formData, {
+            const res = await axios.post('http://127.0.0.1:3013/upload_custom', formData, {
                 headers: { 'Content-Type': 'multipart/form-data' }
             });
             setDentists(res.data.dentists);
@@ -91,7 +91,7 @@ const Sidebar: React.FC = () => {
         setLoading(true);
         setIsScheduling(true);
         try {
-            const res = await axios.post(`http://127.0.0.1:8000/schedule?algorithm=${encodeURIComponent(algorithm)}`);
+            const res = await axios.post(`http://127.0.0.1:3013/schedule?algorithm=${encodeURIComponent(algorithm)}`);
             setScheduleResult(res.data);
             addRunHistory(dataset, algorithm, res.data.runtime_ms);
         } catch (err) {

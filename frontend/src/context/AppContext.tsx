@@ -23,7 +23,7 @@ export interface ScheduleResult {
 interface AppContextType {
     activeTab: Tab;
     setActiveTab: (tab: Tab) => void;
-    
+
     // Dataset state
     dentists: Dentist[];
     setDentists: (d: Dentist[]) => void;
@@ -31,11 +31,11 @@ interface AppContextType {
     setRooms: (r: Room[]) => void;
     requests: Request[];
     setRequests: (r: Request[]) => void;
-    
+
     // Engine result state
     scheduleResult: ScheduleResult | null;
     setScheduleResult: (r: ScheduleResult | null) => void;
-    
+
     // Performance history state
     runHistory: { dataset: string; algorithm: string; runtime_ms: number }[];
     addRunHistory: (dataset: string, algorithm: string, runtime_ms: number) => void;
@@ -50,11 +50,11 @@ const AppContext = createContext<AppContextType | undefined>(undefined);
 
 export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     const [activeTab, setActiveTab] = useState<Tab>('dashboard');
-    
+
     const [dentists, setDentists] = useState<Dentist[]>([]);
     const [rooms, setRooms] = useState<Room[]>([]);
     const [requests, setRequests] = useState<Request[]>([]);
-    
+
     const [scheduleResult, setScheduleResult] = useState<ScheduleResult | null>(null);
     const [runHistory, setRunHistory] = useState<{ dataset: string; algorithm: string; runtime_ms: number }[]>([]);
 
@@ -62,12 +62,12 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     const [liveProgress, setLiveProgress] = useState<{ runtime_ms: number; states_explored: number; backtracks: number } | null>(null);
 
     React.useEffect(() => {
-        let interval: NodeJS.Timeout;
+        let interval: any;
         if (isScheduling) {
             interval = setInterval(async () => {
                 try {
                     // Import axios locally to avoid putting it at top level if it's missing, though we'll assume it's imported or we'll fetch
-                    const res = await fetch('http://127.0.0.1:8000/progress');
+                    const res = await fetch('http://127.0.0.1:3013/progress');
                     const data = await res.json();
                     if (data.is_running) {
                         setLiveProgress({
@@ -92,14 +92,14 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
             // Remove existing entry for same dataset + algorithm to replace it
             const existingIdx = newHistory.findIndex(h => h.dataset === dataset && h.algorithm === algorithm);
             if (existingIdx >= 0) newHistory.splice(existingIdx, 1);
-            
+
             newHistory.push({ dataset, algorithm, runtime_ms });
             return newHistory;
         });
     };
 
     return (
-        <AppContext.Provider value={{ 
+        <AppContext.Provider value={{
             activeTab, setActiveTab,
             dentists, setDentists,
             rooms, setRooms,
