@@ -67,7 +67,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
             interval = setInterval(async () => {
                 try {
                     // Import axios locally to avoid putting it at top level if it's missing, though we'll assume it's imported or we'll fetch
-                    const res = await fetch('http://127.0.0.1:3013/progress');
+                    const res = await fetch('/api/progress');
                     const data = await res.json();
                     if (data.is_running) {
                         setLiveProgress({
