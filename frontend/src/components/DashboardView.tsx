@@ -1,29 +1,35 @@
 import React from 'react';
 import PerformanceChart from './PerformanceChart';
 import { useAppContext } from '../context/AppContext';
+import GanttTimeline from './GanttTimeline';
 
 const DashboardView: React.FC = () => {
-    const { scheduleResult, rooms, dentists, requests } = useAppContext();
+    const { scheduleResult, rooms, dentists, requests, isScheduling, liveProgress } = useAppContext();
 
-    // Group assignments by room
+    // @ts-ignore
     const roomAssignments = rooms.map(room => {
-        if (!scheduleResult) return { room, assignedReqs: [] };
-        
-        const reqIdsInRoom = scheduleResult.assignments
-            .filter(a => a.room_id === room.id)
-            .map(a => a.request_id);
-            
-        const assignedReqs = requests.filter(req => reqIdsInRoom.includes(req.id));
-        
-        // Sort chronologically (basic string sort for HH:MM works)
-        assignedReqs.sort((a, b) => a.requested_time.localeCompare(b.requested_time));
-        
+        if (!scheduleResult) return { room, assignedReqs: [] as { req: typeof requests[0]; scheduled_time: string }[] };
+
+        const activeAssignments = scheduleResult.status === 'success'
+            ? scheduleResult.assignments
+            : scheduleResult.partial_assignments || [];
+
+        const assignmentsInRoom = activeAssignments.filter(a => a.room_id === room.id);
+
+        const assignedReqs = assignmentsInRoom.map(a => {
+            const req = requests.find(r => r.id === a.request_id)!;
+            return { req, scheduled_time: a.scheduled_time };
+        }).filter(item => item.req);
+
+        // Sort chronologically by scheduled time
+        assignedReqs.sort((a, b) => a.scheduled_time.localeCompare(b.scheduled_time));
+
         return { room, assignedReqs };
     });
 
     return (
         <div className="content flex flex-col gap-24" style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
-            
+
             {/* Page Header */}
             <div className="mb-8">
                 <h1 className="section-heading">Schedule Overview</h1>
@@ -41,7 +47,9 @@ const DashboardView: React.FC = () => {
                 <div className="card p-16">
                     <div className="overline-text">Status</div>
                     <div className="mt-8">
-                        {!scheduleResult ? (
+                        {isScheduling ? (
+                            <span className="chip" style={{ background: 'var(--primary)', color: 'white' }}>Running...</span>
+                        ) : !scheduleResult ? (
                             <span className="chip" style={{ background: 'var(--background)' }}>Pending</span>
                         ) : scheduleResult.status === 'success' ? (
                             <span className="chip chip-success">Complete Assignment</span>
@@ -53,19 +61,31 @@ const DashboardView: React.FC = () => {
                 <div className="card p-16">
                     <div className="overline-text">Runtime</div>
                     <div className="display-font mt-4" style={{ fontSize: '28px' }}>
-                        {scheduleResult ? `${(scheduleResult.runtime_ms / 1000).toFixed(3)}s` : '0.00s'}
+                        {isScheduling && liveProgress
+                            ? `${(liveProgress.runtime_ms / 1000).toFixed(3)}s`
+                            : scheduleResult
+                                ? `${(scheduleResult.runtime_ms / 1000).toFixed(3)}s`
+                                : '0.00s'}
                     </div>
                 </div>
                 <div className="card p-16">
                     <div className="overline-text">States Explored</div>
                     <div className="display-font mt-4" style={{ fontSize: '28px' }}>
-                        {scheduleResult ? scheduleResult.states_explored.toLocaleString() : '0'}
+                        {isScheduling && liveProgress
+                            ? liveProgress.states_explored.toLocaleString()
+                            : scheduleResult
+                                ? scheduleResult.states_explored.toLocaleString()
+                                : '0'}
                     </div>
                 </div>
                 <div className="card p-16">
                     <div className="overline-text">Backtracks</div>
                     <div className="display-font mt-4" style={{ fontSize: '28px' }}>
-                        {scheduleResult ? scheduleResult.backtracks.toLocaleString() : '0'}
+                        {isScheduling && liveProgress
+                            ? liveProgress.backtracks.toLocaleString()
+                            : scheduleResult
+                                ? scheduleResult.backtracks.toLocaleString()
+                                : '0'}
                     </div>
                 </div>
             </div>
@@ -85,32 +105,18 @@ const DashboardView: React.FC = () => {
                             Run the scheduling engine to view assignments.
                         </div>
                     ) : (
-                        <div className="list">
-                            {roomAssignments.map(({ room, assignedReqs }) => (
-                                <div className="list-item" key={room.id}>
-                                    <div style={{ width: '140px' }}>
-                                        <div style={{ fontWeight: 500, fontSize: '14px' }}>{room.id}</div>
-                                        <div className="caption-text mt-4" style={{ color: 'var(--text-secondary)' }}>{room.room_type}</div>
-                                    </div>
-                                    <div style={{ flex: 1, display: 'flex', gap: '8px' }}>
-                                        {assignedReqs.length === 0 ? (
-                                            <div style={{ flex: 1, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-                                                <span className="caption-text" style={{ color: 'var(--neutral)', fontStyle: 'italic' }}>No appointments assigned</span>
-                                            </div>
-                                        ) : (
-                                            assignedReqs.map(req => {
-                                                const dentist = dentists.find(d => d.id === req.dentist_id);
-                                                const label = `${req.requested_time} - ${dentist?.name || req.dentist_id} (${req.procedure})`;
-                                                return (
-                                                    <div key={req.id} className="appointment-block" style={{ flex: Math.max(1, req.duration_min / 30) }}>
-                                                        {label}
-                                                    </div>
-                                                );
-                                            })
-                                        )}
-                                    </div>
+                        <div style={{ padding: '16px', overflowX: 'auto' }}>
+                            {scheduleResult.status === 'cancelled' && (
+                                <div style={{ padding: '16px', marginBottom: '16px', background: '#fef2f2', border: '1px solid #fecaca', color: '#991b1b', fontSize: '13px', borderRadius: '8px' }}>
+                                    <strong>✕ Run Stopped:</strong> {scheduleResult.error_reason} The partial schedule below shows the best state reached.
                                 </div>
-                            ))}
+                            )}
+                            {scheduleResult.status === 'failed' && (
+                                <div style={{ padding: '16px', marginBottom: '16px', background: '#fffbeb', border: '1px solid #fde68a', color: '#92400e', fontSize: '13px', borderRadius: '8px' }}>
+                                    <strong>Displaying Partial Schedule:</strong> This shows the deepest valid state reached before the algorithm got stuck on Request <strong>{scheduleResult.deepest_req_id || 'Unknown'}</strong>.
+                                </div>
+                            )}
+                            <GanttTimeline />
                         </div>
                     )}
                 </div>

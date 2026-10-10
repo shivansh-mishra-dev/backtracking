@@ -3,8 +3,26 @@ import { Check, AlertCircle } from 'lucide-react';
 import { useAppContext } from '../context/AppContext';
 import axios from 'axios';
 
+const FileStatus = ({ label, count }: { label: string, count: number }) => (
+    <div className="flex items-center justify-between mb-8 last:mb-0">
+        <div className="flex items-center gap-8">
+            {count > 0 ? (
+                <Check size={16} className="text-secondary" style={{ color: 'var(--success)' }} />
+            ) : (
+                <AlertCircle size={16} style={{ color: 'var(--neutral)' }} />
+            )}
+            <span className="small-text font-medium">{label}</span>
+        </div>
+        {count > 0 ? (
+            <span className="chip chip-success" style={{ padding: '2px 8px', fontSize: '11px' }}>{count} Loaded</span>
+        ) : (
+            <span className="chip" style={{ padding: '2px 8px', fontSize: '11px' }}>Missing</span>
+        )}
+    </div>
+);
+
 const Sidebar: React.FC = () => {
-    const { dentists, rooms, requests, setDentists, setRooms, setRequests, setScheduleResult, addRunHistory } = useAppContext();
+    const { dentists, rooms, requests, setDentists, setRooms, setRequests, setScheduleResult, addRunHistory, setIsScheduling } = useAppContext();
     const [loading, setLoading] = React.useState(false);
     const [algorithm, setAlgorithm] = React.useState('Backtracking + Forward Checking');
     const [dataset, setDataset] = React.useState('');
@@ -16,20 +34,20 @@ const Sidebar: React.FC = () => {
 
     // Load initial data on mount (default to Case 1)
     useEffect(() => {
-        handleLoadDataset('Case 1 — Small Realistic');
+        handleLoadDataset('Small Realistic');
     }, []);
 
     const handleLoadDataset = async (caseName: string) => {
         setDataset(caseName);
         if (caseName === 'Custom Upload...') return;
-        
+
         try {
-            const res = await axios.post(`http://127.0.0.1:8000/load_dataset?case=${encodeURIComponent(caseName)}`);
+            const res = await axios.post(`/api/load_dataset?case=${encodeURIComponent(caseName)}`);
             setDentists(res.data.dentists);
             setRooms(res.data.rooms);
             setRequests(res.data.requests);
             // Reset results on new dataset
-            setScheduleResult(null); 
+            setScheduleResult(null);
         } catch (err) {
             console.error(err);
             alert("Error loading dataset from backend.");
@@ -53,7 +71,7 @@ const Sidebar: React.FC = () => {
 
         setLoading(true);
         try {
-            const res = await axios.post('http://127.0.0.1:8000/upload_custom', formData, {
+            const res = await axios.post('/api/upload_custom', formData, {
                 headers: { 'Content-Type': 'multipart/form-data' }
             });
             setDentists(res.data.dentists);
@@ -71,8 +89,9 @@ const Sidebar: React.FC = () => {
 
     const handleGenerate = async () => {
         setLoading(true);
+        setIsScheduling(true);
         try {
-            const res = await axios.post(`http://127.0.0.1:8000/schedule?algorithm=${encodeURIComponent(algorithm)}`);
+            const res = await axios.post(`/api/schedule?algorithm=${encodeURIComponent(algorithm)}`);
             setScheduleResult(res.data);
             addRunHistory(dataset, algorithm, res.data.runtime_ms);
         } catch (err) {
@@ -80,26 +99,17 @@ const Sidebar: React.FC = () => {
             alert("Error running scheduler. Ensure the backend is running and data is loaded.");
         } finally {
             setLoading(false);
+            setIsScheduling(false);
         }
     };
 
-    const FileStatus = ({ label, count }: { label: string, count: number }) => (
-        <div className="flex items-center justify-between mb-8 last:mb-0">
-            <div className="flex items-center gap-8">
-                {count > 0 ? (
-                    <Check size={16} className="text-secondary" style={{ color: 'var(--success)' }} />
-                ) : (
-                    <AlertCircle size={16} style={{ color: 'var(--neutral)' }} />
-                )}
-                <span className="small-text font-medium">{label}</span>
-            </div>
-            {count > 0 ? (
-                <span className="chip chip-success" style={{ padding: '2px 8px', fontSize: '11px' }}>{count} Loaded</span>
-            ) : (
-                <span className="chip" style={{ padding: '2px 8px', fontSize: '11px' }}>Missing</span>
-            )}
-        </div>
-    );
+    const handleCancel = async () => {
+        try {
+            await axios.post('/api/cancel');
+        } catch (err) {
+            console.error('Cancel request failed:', err);
+        }
+    };
 
     return (
         <aside style={{ position: 'sticky', top: '88px', alignSelf: 'start' }}>
@@ -111,16 +121,17 @@ const Sidebar: React.FC = () => {
                 <div className="card-body">
                     <div className="form-group mb-16">
                         <label>Dataset</label>
-                        <select 
-                            className="select" 
-                            value={dataset} 
+                        <select
+                            className="select"
+                            value={dataset}
                             onChange={(e) => handleLoadDataset(e.target.value)}
                         >
-                            <option>Case 1 — Small Realistic</option>
-                            <option>Case 2 — Medium Synthetic</option>
-                            <option>Case 3 — Large Synthetic</option>
-                            <option>Case 4 — Huge Synthetic</option>
-                            <option>Case 5 — Extreme Synthetic</option>
+                            <option>Tiny (Brute Force Demo)</option>
+                            <option>Small Realistic</option>
+                            <option>Medium Synthetic</option>
+                            <option>Large Synthetic</option>
+                            <option>Huge Synthetic</option>
+                            <option>Extreme Synthetic</option>
                             <option>Custom Upload...</option>
                         </select>
                     </div>
@@ -129,13 +140,13 @@ const Sidebar: React.FC = () => {
                         <div className="form-group mb-16 p-16" style={{ background: 'var(--background)', border: '1px dashed var(--border)', borderRadius: '6px' }}>
                             <label className="caption-text mb-8">Upload doctors.csv</label>
                             <input type="file" accept=".csv" ref={doctorsRef} className="mb-16" style={{ fontSize: '12px', width: '100%' }} />
-                            
+
                             <label className="caption-text mb-8">Upload rooms.csv</label>
                             <input type="file" accept=".csv" ref={roomsRef} className="mb-16" style={{ fontSize: '12px', width: '100%' }} />
-                            
+
                             <label className="caption-text mb-8">Upload requests.csv</label>
                             <input type="file" accept=".csv" ref={requestsRef} className="mb-16" style={{ fontSize: '12px', width: '100%' }} />
-                            
+
                             <button className="btn btn-secondary btn-full" onClick={handleCustomUpload} disabled={loading}>
                                 Process Upload
                             </button>
@@ -144,7 +155,7 @@ const Sidebar: React.FC = () => {
 
                     <div className="form-group mb-24 p-16" style={{ background: 'var(--background)', border: '1px solid var(--border)', borderRadius: '6px' }}>
                         <label style={{ marginBottom: '12px', color: 'var(--text-primary)' }}>Required Data Files</label>
-                        
+
                         <FileStatus label="doctors.csv" count={dentists.length} />
                         <FileStatus label="rooms.csv" count={rooms.length} />
                         <FileStatus label="requests.csv" count={requests.length} />
@@ -152,9 +163,9 @@ const Sidebar: React.FC = () => {
 
                     <div className="form-group mb-32">
                         <label>Search Algorithm</label>
-                        <select 
-                            className="select" 
-                            value={algorithm} 
+                        <select
+                            className="select"
+                            value={algorithm}
                             onChange={e => setAlgorithm(e.target.value)}
                         >
                             <option>Backtracking + Forward Checking</option>
@@ -162,14 +173,33 @@ const Sidebar: React.FC = () => {
                             <option>Brute-Force Search</option>
                         </select>
                     </div>
-                    
-                    <button 
-                        className="btn btn-primary btn-full"
-                        onClick={handleGenerate}
-                        disabled={loading}
-                    >
-                        {loading ? 'Running...' : 'Generate Schedule'}
-                    </button>
+
+                    {loading ? (
+                        <div style={{ display: 'flex', gap: '8px' }}>
+                            <button
+                                className="btn btn-primary btn-full"
+                                disabled
+                                style={{ flex: 1 }}
+                            >
+                                Running...
+                            </button>
+                            <button
+                                className="btn btn-full"
+                                onClick={handleCancel}
+                                style={{ flex: '0 0 auto', padding: '0 16px', background: '#ef4444', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 600 }}
+                                title="Stop the algorithm immediately"
+                            >
+                                ✕ Stop
+                            </button>
+                        </div>
+                    ) : (
+                        <button
+                            className="btn btn-primary btn-full"
+                            onClick={handleGenerate}
+                        >
+                            Generate Schedule
+                        </button>
+                    )}
                 </div>
                 <div className="card-footer text-center" style={{ display: 'flex', justifyContent: 'center' }}>
                     <span className="caption-text" style={{ color: 'var(--text-secondary)' }}>Using Local SQLite Database</span>
