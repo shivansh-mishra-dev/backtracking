@@ -39,6 +39,7 @@ def read_root():
 
 progress_state = {
     "is_running": False,
+    "cancelled": False,
     "start_time": 0,
     "runtime_ms": 0,
     "states_explored": 0,
@@ -54,6 +55,15 @@ def get_progress():
             time.time() - progress_state["start_time"]
         ) * 1000
     return progress_state
+
+
+@app.post("/cancel")
+def cancel_schedule():
+    """Signal the running scheduler to stop at its next checkpoint."""
+    if progress_state["is_running"]:
+        progress_state["cancelled"] = True
+        return {"status": "cancellation requested"}
+    return {"status": "no algorithm running"}
 
 
 @app.post("/load_dataset")
@@ -242,6 +252,7 @@ def generate_schedule(algorithm: str, db: Session = Depends(database.get_db)):
         )
 
     progress_state["is_running"] = True
+    progress_state["cancelled"] = False
     progress_state["start_time"] = time.time()
     progress_state["runtime_ms"] = 0
     progress_state["states_explored"] = 0
@@ -252,5 +263,6 @@ def generate_schedule(algorithm: str, db: Session = Depends(database.get_db)):
         result = run_scheduler(requests, rooms, dentists, algorithm, progress_state)
     finally:
         progress_state["is_running"] = False
+        progress_state["cancelled"] = False
 
     return result

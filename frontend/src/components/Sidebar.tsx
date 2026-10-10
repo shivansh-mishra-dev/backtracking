@@ -103,6 +103,14 @@ const Sidebar: React.FC = () => {
         }
     };
 
+    const handleCancel = async () => {
+        try {
+            await axios.post('/api/cancel');
+        } catch (err) {
+            console.error('Cancel request failed:', err);
+        }
+    };
+
     return (
         <aside style={{ position: 'sticky', top: '88px', alignSelf: 'start' }}>
             <div className="card">
@@ -166,13 +174,32 @@ const Sidebar: React.FC = () => {
                         </select>
                     </div>
 
-                    <button
-                        className="btn btn-primary btn-full"
-                        onClick={handleGenerate}
-                        disabled={loading}
-                    >
-                        {loading ? 'Running...' : 'Generate Schedule'}
-                    </button>
+                    {loading ? (
+                        <div style={{ display: 'flex', gap: '8px' }}>
+                            <button
+                                className="btn btn-primary btn-full"
+                                disabled
+                                style={{ flex: 1 }}
+                            >
+                                Running...
+                            </button>
+                            <button
+                                className="btn btn-full"
+                                onClick={handleCancel}
+                                style={{ flex: '0 0 auto', padding: '0 16px', background: '#ef4444', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 600 }}
+                                title="Stop the algorithm immediately"
+                            >
+                                ✕ Stop
+                            </button>
+                        </div>
+                    ) : (
+                        <button
+                            className="btn btn-primary btn-full"
+                            onClick={handleGenerate}
+                        >
+                            Generate Schedule
+                        </button>
+                    )}
                 </div>
                 <div className="card-footer text-center" style={{ display: 'flex', justifyContent: 'center' }}>
                     <span className="caption-text" style={{ color: 'var(--text-secondary)' }}>Using Local SQLite Database</span>

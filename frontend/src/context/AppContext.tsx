@@ -8,7 +8,7 @@ export interface Room { id: string; room_type: string; }
 export interface Request { id: string; patient: string; dentist_id: string; procedure: string; acceptable_room_type: string; requested_time: string; duration_min: number; }
 
 export interface ScheduleResult {
-    status: string;
+    status: 'success' | 'failed' | 'cancelled';
     error_reason?: string;
     deepest_req_id?: string;
     algorithm: string;

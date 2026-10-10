@@ -6,29 +6,30 @@ import GanttTimeline from './GanttTimeline';
 const DashboardView: React.FC = () => {
     const { scheduleResult, rooms, dentists, requests, isScheduling, liveProgress } = useAppContext();
 
+    // @ts-ignore
     const roomAssignments = rooms.map(room => {
         if (!scheduleResult) return { room, assignedReqs: [] as { req: typeof requests[0]; scheduled_time: string }[] };
-        
-        const activeAssignments = scheduleResult.status === 'success' 
-            ? scheduleResult.assignments 
+
+        const activeAssignments = scheduleResult.status === 'success'
+            ? scheduleResult.assignments
             : scheduleResult.partial_assignments || [];
 
         const assignmentsInRoom = activeAssignments.filter(a => a.room_id === room.id);
-            
+
         const assignedReqs = assignmentsInRoom.map(a => {
             const req = requests.find(r => r.id === a.request_id)!;
             return { req, scheduled_time: a.scheduled_time };
         }).filter(item => item.req);
-        
+
         // Sort chronologically by scheduled time
         assignedReqs.sort((a, b) => a.scheduled_time.localeCompare(b.scheduled_time));
-        
+
         return { room, assignedReqs };
     });
 
     return (
         <div className="content flex flex-col gap-24" style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
-            
+
             {/* Page Header */}
             <div className="mb-8">
                 <h1 className="section-heading">Schedule Overview</h1>
@@ -60,30 +61,30 @@ const DashboardView: React.FC = () => {
                 <div className="card p-16">
                     <div className="overline-text">Runtime</div>
                     <div className="display-font mt-4" style={{ fontSize: '28px' }}>
-                        {isScheduling && liveProgress 
-                            ? `${(liveProgress.runtime_ms / 1000).toFixed(3)}s` 
-                            : scheduleResult 
-                                ? `${(scheduleResult.runtime_ms / 1000).toFixed(3)}s` 
+                        {isScheduling && liveProgress
+                            ? `${(liveProgress.runtime_ms / 1000).toFixed(3)}s`
+                            : scheduleResult
+                                ? `${(scheduleResult.runtime_ms / 1000).toFixed(3)}s`
                                 : '0.00s'}
                     </div>
                 </div>
                 <div className="card p-16">
                     <div className="overline-text">States Explored</div>
                     <div className="display-font mt-4" style={{ fontSize: '28px' }}>
-                        {isScheduling && liveProgress 
+                        {isScheduling && liveProgress
                             ? liveProgress.states_explored.toLocaleString()
-                            : scheduleResult 
-                                ? scheduleResult.states_explored.toLocaleString() 
+                            : scheduleResult
+                                ? scheduleResult.states_explored.toLocaleString()
                                 : '0'}
                     </div>
                 </div>
                 <div className="card p-16">
                     <div className="overline-text">Backtracks</div>
                     <div className="display-font mt-4" style={{ fontSize: '28px' }}>
-                        {isScheduling && liveProgress 
+                        {isScheduling && liveProgress
                             ? liveProgress.backtracks.toLocaleString()
-                            : scheduleResult 
-                                ? scheduleResult.backtracks.toLocaleString() 
+                            : scheduleResult
+                                ? scheduleResult.backtracks.toLocaleString()
                                 : '0'}
                     </div>
                 </div>
@@ -105,6 +106,11 @@ const DashboardView: React.FC = () => {
                         </div>
                     ) : (
                         <div style={{ padding: '16px', overflowX: 'auto' }}>
+                            {scheduleResult.status === 'cancelled' && (
+                                <div style={{ padding: '16px', marginBottom: '16px', background: '#fef2f2', border: '1px solid #fecaca', color: '#991b1b', fontSize: '13px', borderRadius: '8px' }}>
+                                    <strong>✕ Run Stopped:</strong> {scheduleResult.error_reason} The partial schedule below shows the best state reached.
+                                </div>
+                            )}
                             {scheduleResult.status === 'failed' && (
                                 <div style={{ padding: '16px', marginBottom: '16px', background: '#fffbeb', border: '1px solid #fde68a', color: '#92400e', fontSize: '13px', borderRadius: '8px' }}>
                                     <strong>Displaying Partial Schedule:</strong> This shows the deepest valid state reached before the algorithm got stuck on Request <strong>{scheduleResult.deepest_req_id || 'Unknown'}</strong>.

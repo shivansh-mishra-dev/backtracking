@@ -7,6 +7,11 @@ from collections import defaultdict
 SLOT_INTERVAL = 15  # Generate candidate slots every 15 minutes
 
 
+class SchedulingCancelled(Exception):
+    """Raised when the user manually cancels the scheduling run."""
+    pass
+
+
 def convert_time_to_minutes(time_str: str) -> int:
     """Helper to convert HH:MM to integer minutes since midnight."""
     h, m = time_str.split(":")
@@ -137,9 +142,11 @@ class DentalSchedulerCSP:
         ]
 
     def _update_progress(self):
-        if self.progress_state and self.states_explored % 500 == 0:
+        if self.states_explored % 500 == 0 and self.progress_state:
             self.progress_state["states_explored"] = self.states_explored
             self.progress_state["backtracks"] = self.backtracks
+            if self.progress_state.get("cancelled"):
+                raise SchedulingCancelled("Run cancelled by user.")
 
     def log(self, message: str, state_type: str = "INFO"):
         # Only keep first 5000 log entries to prevent memory explosion
@@ -380,17 +387,25 @@ def run_scheduler(
     start_time = time.time()
     csp = DentalSchedulerCSP(requests, rooms, dentists, progress_state)
 
-    if algorithm == "Brute-Force Search":
-        success = csp.brute_force()
-    elif algorithm == "Backtracking + Forward Checking":
-        success = csp.forward_checking()
-    else:
-        success = csp.standard_backtracking()
+    cancelled = False
+    try:
+        if algorithm == "Brute-Force Search":
+            success = csp.brute_force()
+        elif algorithm == "Backtracking + Forward Checking":
+            success = csp.forward_checking()
+        else:
+            success = csp.standard_backtracking()
+    except SchedulingCancelled:
+        success = False
+        cancelled = True
+        csp.log("Run cancelled by user.", "ERROR")
 
     runtime_ms = (time.time() - start_time) * 1000
 
     error_reason = None
-    if not success:
+    if cancelled:
+        error_reason = f"Run was manually stopped after {csp.states_explored:,} states explored."
+    elif not success:
         error_reason = f"Algorithm could not find a valid schedule. Got stuck trying to place Request {csp.deepest_req_id}."
 
     # Build output assignments including the resolved start time
@@ -407,7 +422,7 @@ def run_scheduler(
         return result
 
     return {
-        "status": "success" if success else "failed",
+        "status": "cancelled" if cancelled else ("success" if success else "failed"),
         "error_reason": error_reason,
         "deepest_req_id": csp.deepest_req_id,
         "algorithm": algorithm,
