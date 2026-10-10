@@ -22,5 +22,6 @@ class Request(Base):
     patient = Column(String)
     dentist_id = Column(String)
     procedure = Column(String)
+    acceptable_room_type = Column(String)
     requested_time = Column(String)
     duration_min = Column(Integer)

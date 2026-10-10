@@ -5,16 +5,18 @@ type Tab = 'dashboard' | 'data' | 'visualizer' | 'output';
 
 export interface Dentist { id: string; name: string; start_time: string; end_time: string; }
 export interface Room { id: string; room_type: string; }
-export interface Request { id: string; patient: string; dentist_id: string; procedure: string; requested_time: string; duration_min: number; }
+export interface Request { id: string; patient: string; dentist_id: string; procedure: string; acceptable_room_type: string; requested_time: string; duration_min: number; }
 
 export interface ScheduleResult {
     status: string;
     error_reason?: string;
+    deepest_req_id?: string;
     algorithm: string;
     runtime_ms: number;
     states_explored: number;
     backtracks: number;
-    assignments: { request_id: string; room_id: string }[];
+    assignments: { request_id: string; room_id: string; scheduled_time: string }[];
+    partial_assignments: { request_id: string; room_id: string; scheduled_time: string }[];
     logs: { iteration: number; type: string; message: string }[];
 }
 
@@ -37,6 +39,11 @@ interface AppContextType {
     // Performance history state
     runHistory: { dataset: string; algorithm: string; runtime_ms: number }[];
     addRunHistory: (dataset: string, algorithm: string, runtime_ms: number) => void;
+
+    // Real-time progress state
+    isScheduling: boolean;
+    setIsScheduling: (b: boolean) => void;
+    liveProgress: { runtime_ms: number; states_explored: number; backtracks: number } | null;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -50,6 +57,34 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     
     const [scheduleResult, setScheduleResult] = useState<ScheduleResult | null>(null);
     const [runHistory, setRunHistory] = useState<{ dataset: string; algorithm: string; runtime_ms: number }[]>([]);
+
+    const [isScheduling, setIsScheduling] = useState(false);
+    const [liveProgress, setLiveProgress] = useState<{ runtime_ms: number; states_explored: number; backtracks: number } | null>(null);
+
+    React.useEffect(() => {
+        let interval: NodeJS.Timeout;
+        if (isScheduling) {
+            interval = setInterval(async () => {
+                try {
+                    // Import axios locally to avoid putting it at top level if it's missing, though we'll assume it's imported or we'll fetch
+                    const res = await fetch('http://127.0.0.1:8000/progress');
+                    const data = await res.json();
+                    if (data.is_running) {
+                        setLiveProgress({
+                            runtime_ms: data.runtime_ms,
+                            states_explored: data.states_explored,
+                            backtracks: data.backtracks
+                        });
+                    }
+                } catch (e) {
+                    console.error("Polling error", e);
+                }
+            }, 100);
+        } else {
+            setLiveProgress(null);
+        }
+        return () => clearInterval(interval);
+    }, [isScheduling]);
 
     const addRunHistory = (dataset: string, algorithm: string, runtime_ms: number) => {
         setRunHistory(prev => {
@@ -70,7 +105,9 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
             rooms, setRooms,
             requests, setRequests,
             scheduleResult, setScheduleResult,
-            runHistory, addRunHistory
+            runHistory, addRunHistory,
+            isScheduling, setIsScheduling,
+            liveProgress
         }}>
             {children}
         </AppContext.Provider>

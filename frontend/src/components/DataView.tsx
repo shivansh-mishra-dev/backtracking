@@ -51,10 +51,10 @@ const DataView: React.FC = () => {
                 <div className="card-header"><h3 className="subhead" style={{ fontSize: '18px' }}>requests.csv</h3></div>
                 <div className="card-body p-0" style={{ overflowX: 'auto' }}>
                     <table className="data-table">
-                        <thead><tr><th>Req ID</th><th>Patient</th><th>Dentist</th><th>Procedure</th><th>Requested Time</th><th>Duration (min)</th></tr></thead>
+                        <thead><tr><th>Req ID</th><th>Patient</th><th>Dentist</th><th>Procedure</th><th>Acceptable Room</th><th>Requested Time</th><th>Duration (min)</th></tr></thead>
                         <tbody>
                             {requests.length === 0 ? (
-                                <tr><td colSpan={6} className="text-center" style={{ padding: '24px', color: 'var(--text-secondary)' }}>No data loaded.</td></tr>
+                                <tr><td colSpan={7} className="text-center" style={{ padding: '24px', color: 'var(--text-secondary)' }}>No data loaded.</td></tr>
                             ) : (
                                 requests.map(req => (
                                     <tr key={req.id}>
@@ -62,6 +62,7 @@ const DataView: React.FC = () => {
                                         <td>{req.patient}</td>
                                         <td>{req.dentist_id}</td>
                                         <td>{req.procedure}</td>
+                                        <td>{req.acceptable_room_type}</td>
                                         <td>{req.requested_time}</td>
                                         <td>{req.duration_min}</td>
                                     </tr>

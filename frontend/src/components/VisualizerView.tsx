@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Play, ChevronLeft, ChevronRight, SkipForward } from 'lucide-react';
+import { ChevronLeft, ChevronRight, SkipForward, Play as PlayIcon, Pause } from 'lucide-react';
 import { useAppContext } from '../context/AppContext';
 
 interface TreeNode {
@@ -11,9 +11,25 @@ interface TreeNode {
 const VisualizerView: React.FC = () => {
     const { scheduleResult } = useAppContext();
     const [currentStepIndex, setCurrentStepIndex] = useState(0);
+    const [autoPlay, setAutoPlay] = useState(false);
+    const [speed, setSpeed] = useState(200);
 
     const logs = scheduleResult?.logs || [];
     const maxSteps = logs.length > 0 ? logs.length - 1 : 0;
+
+    React.useEffect(() => {
+        if (!autoPlay) return;
+        const timer = setInterval(() => {
+            setCurrentStepIndex(prev => {
+                if (prev >= maxSteps) {
+                    setAutoPlay(false);
+                    return prev;
+                }
+                return prev + 1;
+            });
+        }, speed);
+        return () => clearInterval(timer);
+    }, [autoPlay, speed, maxSteps]);
 
     const handleNext = () => {
         if (currentStepIndex < maxSteps) setCurrentStepIndex(currentStepIndex + 1);
@@ -80,10 +96,13 @@ const VisualizerView: React.FC = () => {
             </div>
 
             {/* Controls */}
-            <div className="card p-16 flex items-center justify-between">
-                <div className="flex items-center gap-16">
+            <div className="card p-16 flex items-center justify-between" style={{ display: 'flex', flexWrap: 'wrap', gap: '16px' }}>
+                <div className="flex items-center gap-16" style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
                     <button className="btn btn-secondary" onClick={handlePrev} disabled={currentStepIndex === 0}>
                         <ChevronLeft size={16} /> Prev
+                    </button>
+                    <button className="btn btn-primary" onClick={() => setAutoPlay(!autoPlay)} disabled={currentStepIndex === maxSteps}>
+                        {autoPlay ? <><Pause size={16} /> Pause</> : <><PlayIcon size={16} /> AutoPlay</>}
                     </button>
                     <button className="btn btn-secondary" onClick={handleNext} disabled={currentStepIndex === maxSteps}>
                         Next <ChevronRight size={16} />
@@ -91,6 +110,16 @@ const VisualizerView: React.FC = () => {
                     <button className="btn btn-secondary" onClick={handleSkipToEnd} disabled={currentStepIndex === maxSteps}>
                         Skip to End <SkipForward size={16} />
                     </button>
+                    
+                    <div style={{ marginLeft: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <span style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>Speed:</span>
+                        <input 
+                            type="range" min="50" max="1000" step="50" 
+                            value={1050 - speed} 
+                            onChange={(e) => setSpeed(1050 - parseInt(e.target.value))} 
+                            style={{ width: '100px' }}
+                        />
+                    </div>
                 </div>
                 <div className="code-font" style={{ fontSize: '14px', color: 'var(--text-secondary)' }}>
                     Iteration: <span style={{ color: 'var(--text-primary)', fontWeight: 700 }}>{currentStepIndex}</span> / {maxSteps}
