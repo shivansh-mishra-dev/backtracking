@@ -129,9 +129,6 @@ const Sidebar: React.FC = () => {
                             <option>Tiny (Brute Force Demo)</option>
                             <option>Small Realistic</option>
                             <option>Medium Synthetic</option>
-                            <option>Large Synthetic</option>
-                            <option>Huge Synthetic</option>
-                            <option>Extreme Synthetic</option>
                             <option>Custom Upload...</option>
                         </select>
                     </div>
@@ -175,7 +172,7 @@ const Sidebar: React.FC = () => {
                     </div>
 
                     {loading ? (
-                        <div style={{ display: 'flex', gap: '8px' }}>
+                        <div style={{ display: 'flex', flexDirection: "column", gap: '8px' }}>
                             <button
                                 className="btn btn-primary btn-full"
                                 disabled
@@ -186,7 +183,7 @@ const Sidebar: React.FC = () => {
                             <button
                                 className="btn btn-full"
                                 onClick={handleCancel}
-                                style={{ flex: '0 0 auto', padding: '0 16px', background: '#ef4444', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 600 }}
+                                style={{ flex: '0 0 auto', padding: '10px 16px', background: '#ef4444', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 600 }}
                                 title="Stop the algorithm immediately"
                             >
                                 ✕ Stop

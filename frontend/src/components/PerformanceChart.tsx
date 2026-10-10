@@ -75,9 +75,6 @@ const DATASETS = [
     'Tiny (Brute Force Demo)',
     'Small Realistic',
     'Medium Synthetic',
-    'Large Synthetic',
-    'Huge Synthetic',
-    'Extreme Synthetic'
 ];
 
 const ALGORITHMS = [
@@ -89,14 +86,15 @@ const ALGORITHMS = [
 const PerformanceChart: React.FC = () => {
     const { runHistory } = useAppContext();
 
+    // Baseline reference data from test runs (ms). null = Did Not Finish (algorithm too slow).
     const BASELINE_DATA: Record<string, (number | null)[]> = {
-        'Brute-Force Search': [3, null, null, null, null, null],
-        'Standard Backtracking': [2, 18, null, null, null, null], 
-        'Backtracking + Forward Checking': [1, 3, 21, 64, 182, 1400] 
+        'Brute-Force Search':                    [3,    null, null],
+        'Standard Backtracking':                 [2,    18,   null],
+        'Backtracking + Forward Checking':       [1,    3,    21  ]
     };
 
     const data = {
-        labels: ['Tiny', 'Small', 'Medium', 'Large', 'Huge', 'Extreme'],
+        labels: ['Tiny', 'Small', 'Medium'],
         datasets: ALGORITHMS.map(algo => ({
             label: algo.name,
             backgroundColor: algo.color,

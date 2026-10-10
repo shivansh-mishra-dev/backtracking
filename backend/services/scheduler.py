@@ -296,19 +296,42 @@ class DentalSchedulerCSP:
         self, domains: Optional[Dict[str, List[Tuple[str, int]]]] = None
     ) -> bool:
         """
-        Backtracking with Forward Checking and MRV (Minimum Remaining Values) heuristic.
-        After each assignment, prune the domains of future variables.
-        If any domain becomes empty, backtrack immediately.
+        Backtracking + Forward Checking with MRV (Minimum Remaining Values).
+
+        How it works (step by step):
+        1. MRV Heuristic — instead of always picking the next request in order,
+           we pick the one with the FEWEST remaining options in its domain.
+           This means we tackle the "hardest" requests first, failing early
+           rather than doing a lot of work and failing late.
+
+        2. Forward Checking — after assigning a (room, time) to a request,
+           we immediately look ahead at all other unassigned requests and
+           remove any options that would now conflict with this assignment.
+           If any other request ends up with ZERO options left (domain wipeout),
+           we know this assignment cannot lead to a solution, so we backtrack
+           RIGHT AWAY without exploring further.
+
+        Key advantage over Standard Backtracking:
+           Standard Backtracking only detects conflicts when it actually tries
+           to assign a conflicting value. Forward Checking catches conflicts
+           one step ahead, pruning the search space proactively.
         """
+        # On the first call, start with a deep copy of the full base domains
+        # so we can safely modify domains at each recursive level
         if domains is None:
             domains = copy.deepcopy(self.base_domains)
 
+        # Find all requests not yet assigned
         unassigned = [r for r in self.requests if r.id not in self.assignments]
+
+        # BASE CASE: every request has been assigned — we found a full solution!
         if not unassigned:
             self.log("All requests assigned successfully.", "COMPLETE")
             return True
 
-        # MRV: pick the request with the fewest remaining options
+        # ── MRV: pick the unassigned request with the smallest remaining domain ──
+        # Sorting by domain size puts the most constrained variable first.
+        # e.g., if Request A has 2 options and Request B has 50, we try A first.
         unassigned.sort(key=lambda req: len(domains.get(req.id, [])))
         req = unassigned[0]
 
@@ -326,7 +349,11 @@ class DentalSchedulerCSP:
             self.log("Exploration cap reached (5,000,000 states). Aborting.", "ERROR")
             return False
 
+        # Try every (room, start_time) option remaining in this request's domain
         for room_id, start in domains.get(req.id, []):
+
+            # Check if this assignment violates any hard constraint right now
+            # (room double-booking or dentist double-booking)
             is_valid, reason = self.is_valid_fast(req, room_id, start)
 
             if is_valid:
@@ -335,30 +362,43 @@ class DentalSchedulerCSP:
                     f"Assign {req.id} -> {room_id} @ {minutes_to_time(start)}",
                     "SUCCESS",
                 )
+
+                # Commit the assignment and record it in the time-indexed schedules
                 self.assignments[req.id] = (room_id, start)
                 self._add_to_schedules(req.id, room_id, start, end, req.dentist_id)
                 self.record_best()
 
-                # Forward check: prune domains of remaining unassigned requests
+                # ── FORWARD CHECKING: prune future domains ──────────────────────
+                # Now that req is placed at (room_id, start..end), go through
+                # every other unassigned request and remove any of its options
+                # that would now be impossible:
+                #   • Same room AND overlapping time  → conflict (room double-booking)
+                #   • Same dentist AND overlapping time → conflict (dentist double-booked)
                 new_domains = {}
                 domain_wipeout = False
 
                 for other_req in unassigned:
                     if other_req.id == req.id:
-                        continue
+                        continue  # skip the request we just assigned
 
                     pruned = []
                     for o_room, o_start in domains[other_req.id]:
                         o_end = o_start + other_req.duration_min
-                        # Check if this option conflicts with the new assignment
+
+                        # Do the two time windows overlap?
                         overlaps = not (end <= o_start or start >= o_end)
+
                         if overlaps:
                             if o_room == room_id:
-                                continue  # Same room, same time -> prune
+                                continue  # room conflict → prune this option
                             if other_req.dentist_id == req.dentist_id:
-                                continue  # Same dentist, same time -> prune
+                                continue  # dentist conflict → prune this option
+
+                        # No conflict — keep this option in the pruned domain
                         pruned.append((o_room, o_start))
 
+                    # If another request's domain is now EMPTY, this branch
+                    # cannot possibly lead to a complete assignment → backtrack now
                     if len(pruned) == 0:
                         domain_wipeout = True
                         self.log(
@@ -366,17 +406,25 @@ class DentalSchedulerCSP:
                             "ERROR",
                         )
                         break
-                    new_domains[other_req.id] = pruned
 
+                    new_domains[other_req.id] = pruned
+                # ── END FORWARD CHECKING ─────────────────────────────────────────
+
+                # Only recurse deeper if no domain was wiped out
                 if not domain_wipeout:
                     if self.forward_checking(new_domains):
-                        return True
+                        return True  # solution found — bubble up
 
+                # ── BACKTRACK ────────────────────────────────────────────────────
+                # Either a domain wipeout was detected, or the recursive call
+                # failed to find a solution. Undo this assignment and try the
+                # next option in req's domain.
                 self.backtracks += 1
                 self.log(f"Backtrack: unassign {req.id}", "BACKTRACK")
                 del self.assignments[req.id]
                 self._remove_from_schedules(req.id, room_id, req.dentist_id)
 
+        # All options for this request were exhausted — signal failure up the call stack
         self.log(f"No valid assignments for {req.id}.", "ERROR")
         return False
 

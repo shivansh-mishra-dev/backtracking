@@ -75,9 +75,6 @@ def load_dataset(case: str, db: Session = Depends(database.get_db)):
         "Tiny (Brute Force Demo)": "case0_tiny_demo",
         "Small Realistic": "case1_small_realistic",
         "Medium Synthetic": "case2_medium_synthetic",
-        "Large Synthetic": "case3_large_synthetic",
-        "Huge Synthetic": "case4_huge_synthetic",
-        "Extreme Synthetic": "case5_extreme_synthetic",
     }
 
     folder_name = case_map.get(case)
